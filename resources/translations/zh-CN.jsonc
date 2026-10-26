@@ -1,0 +1,20 @@
+{
+  "cs2menus.prefix": "[green][菜单][default]",
+  "cs2menus.only_players": "该命令只能由玩家使用。",
+  "cs2menus.no_permission": "你没有权限使用该菜单。",
+  "cs2menus.invalid_player": "你的玩家状态尚未就绪，暂时无法打开菜单。",
+  "cs2menus.no_options": "当前没有你可以使用的选项。",
+  "cs2menus.unavailable": "菜单服务当前不可用。",
+  "cs2menus.demo.title": "SWS2 CS2 菜单演示",
+  "cs2menus.demo.comment": "分页、子菜单、权限检查和返回均由 sws2-cs2menus 统一处理。",
+  "cs2menus.demo.option": "演示选项 {0}",
+  "cs2menus.demo.submenu": "打开子菜单",
+  "cs2menus.demo.submenu.title": "演示子菜单",
+  "cs2menus.demo.submenu.option": "子菜单选项 {0}",
+  "cs2menus.demo.selected": "已选择：{0}",
+  "cs2menus.demo.disabled": "本服务器已禁用演示命令。",
+  "cs2menus.demo.disabled_option": "禁用选项",
+  "cs2menus.demo.close": "关闭菜单",
+  "cs2menus.demo.admin_option": "仅管理员选项",
+  "cs2menus.demo.admin_selected": "已选择仅管理员选项。"
+}

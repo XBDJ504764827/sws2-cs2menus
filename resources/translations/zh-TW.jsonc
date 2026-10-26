@@ -1,0 +1,20 @@
+{
+  "cs2menus.prefix": "[green][選單][default]",
+  "cs2menus.only_players": "此指令只能由玩家使用。",
+  "cs2menus.no_permission": "你沒有權限使用此選單。",
+  "cs2menus.invalid_player": "你的玩家狀態尚未就緒，暫時無法開啟選單。",
+  "cs2menus.no_options": "目前沒有你可以使用的選項。",
+  "cs2menus.unavailable": "選單服務目前無法使用。",
+  "cs2menus.demo.title": "SWS2 CS2 選單示範",
+  "cs2menus.demo.comment": "分頁、子選單、權限檢查與返回皆由 sws2-cs2menus 統一處理。",
+  "cs2menus.demo.option": "示範選項 {0}",
+  "cs2menus.demo.submenu": "開啟子選單",
+  "cs2menus.demo.submenu.title": "示範子選單",
+  "cs2menus.demo.submenu.option": "子選單選項 {0}",
+  "cs2menus.demo.selected": "已選擇：{0}",
+  "cs2menus.demo.disabled": "此伺服器已停用示範指令。",
+  "cs2menus.demo.disabled_option": "停用選項",
+  "cs2menus.demo.close": "關閉選單",
+  "cs2menus.demo.admin_option": "僅管理員選項",
+  "cs2menus.demo.admin_selected": "已選擇僅管理員選項。"
+}

@@ -1,0 +1,20 @@
+{
+  "cs2menus.prefix": "[green][Menus][default]",
+  "cs2menus.only_players": "This command can only be used by players.",
+  "cs2menus.no_permission": "You do not have permission to use this menu.",
+  "cs2menus.invalid_player": "Your player is not ready for a menu yet.",
+  "cs2menus.no_options": "There are no options available for you.",
+  "cs2menus.unavailable": "The menu service is not available right now.",
+  "cs2menus.demo.title": "SWS2 CS2 Menus Demo",
+  "cs2menus.demo.comment": "Pagination, submenus, permissions and Back are all handled by sws2-cs2menus.",
+  "cs2menus.demo.option": "Demo option {0}",
+  "cs2menus.demo.submenu": "Open submenu",
+  "cs2menus.demo.submenu.title": "Demo Submenu",
+  "cs2menus.demo.submenu.option": "Submenu option {0}",
+  "cs2menus.demo.selected": "Selected: {0}",
+  "cs2menus.demo.disabled": "The demo command is disabled on this server.",
+  "cs2menus.demo.disabled_option": "Disabled option",
+  "cs2menus.demo.close": "Close menu",
+  "cs2menus.demo.admin_option": "Admin-only option",
+  "cs2menus.demo.admin_selected": "Admin-only option selected."
+}
