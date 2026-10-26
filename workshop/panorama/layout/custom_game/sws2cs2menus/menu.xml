@@ -1,0 +1,59 @@
+<root>
+  <styles>
+    <include src="file://{resources}/styles/custom_game/sws2cs2menus/menu.css" />
+  </styles>
+
+  <Panel class="root" hittest="false">
+    <Panel id="sw_root" class="menu hidden">
+      <Panel class="menu-box">
+        <Panel class="window-header">
+          <Label id="sw_title" class="menu-title" text="{s:sw_title}" />
+          <Label id="sw_page" class="menu-page" text="{s:sw_page}" />
+          <Button id="sw_close" class="close-btn">
+            <Label class="close-label" text="X" />
+          </Button>
+        </Panel>
+
+        <Panel id="sw_comment" class="menu-comment hidden">
+          <Label id="sw_comment_text" class="menu-comment-text" text="{s:sw_comment_text}" />
+        </Panel>
+
+        <Panel class="menu-items">
+          <Button id="sw_item0" class="item hidden">
+            <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" />
+            <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" />
+          </Button>
+          <Button id="sw_item1" class="item hidden">
+            <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" />
+            <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" />
+          </Button>
+          <Button id="sw_item2" class="item hidden">
+            <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" />
+            <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" />
+          </Button>
+          <Button id="sw_item3" class="item hidden">
+            <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" />
+            <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" />
+          </Button>
+          <Button id="sw_item4" class="item hidden">
+            <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" />
+            <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" />
+          </Button>
+        </Panel>
+
+        <Panel class="menu-footer">
+          <Button id="sw_prev" class="nav-btn">
+            <Label class="nav-label" text="&lt;" />
+          </Button>
+          <Label id="sw_footer" class="footer-text" text="{s:sw_footer}" />
+          <Button id="sw_next" class="nav-btn">
+            <Label class="nav-label" text="&gt;" />
+          </Button>
+          <Button id="sw_back" class="nav-btn hidden">
+            <Label id="sw_back_text" class="nav-label" text="{s:sw_back_text}" />
+          </Button>
+        </Panel>
+      </Panel>
+    </Panel>
+  </Panel>
+</root>

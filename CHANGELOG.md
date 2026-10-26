@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Minimal `custom_hud_layout` menu backend with mouse-clickable Panorama layout.
+- `Menu.Backend` selection (`auto`, `hudlayout`, `classic`) with center-HTML fallback.
+- `workshop/` Panorama layout source and Workshop Tools/MultiAddonManager guide.
+
 ## [1.0.0] - 2026-10-26
 
 ### Added

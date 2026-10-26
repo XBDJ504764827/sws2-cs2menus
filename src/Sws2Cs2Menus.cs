@@ -16,7 +16,7 @@ namespace Sws2Cs2Menus;
 public partial class Sws2Cs2Menus : BasePlugin
 {
     private MenuConfig _config = new();
-    private MenuService _menus = null!;
+    private MenuServiceProxy _menus = null!;
     private ServiceProvider _provider = null!;
     private IDisposable? _configSubscription;
 
@@ -44,7 +44,7 @@ public partial class Sws2Cs2Menus : BasePlugin
         var options = _provider.GetRequiredService<IOptionsMonitor<MenuConfig>>();
         _config = options.CurrentValue;
 
-        _menus = new MenuService(Core, _config);
+        _menus = new MenuServiceProxy(CreateBackend(Core, _config));
 
         _configSubscription = options.OnChange(newConfig =>
         {
@@ -80,9 +80,46 @@ public partial class Sws2Cs2Menus : BasePlugin
             return;
         }
 
-        interfaceManager.AddSharedInterface<IMenuService, MenuService>(
+        interfaceManager.AddSharedInterface<IMenuService, MenuServiceProxy>(
             MenuServiceConstants.InterfaceKey,
             _menus);
+    }
+
+    private static IMenuBackend CreateBackend(ISwiftlyCore core, MenuConfig config)
+    {
+        var mode = (config.Menu.Backend ?? "auto").Trim().ToLowerInvariant();
+
+        if (mode == "classic")
+        {
+            core.Logger.LogInformation("[sws2-cs2menus] Using classic center-HTML menu backend");
+            return new ClassicMenuBackend(core, config);
+        }
+
+        var hud = new HudLayoutMenuService(core, config);
+        if (mode == "hudlayout")
+        {
+            if (!HudLayoutMenuService.IsLayoutAvailable(core, config))
+            {
+                core.Logger.LogWarning(
+                    "[sws2-cs2menus] HUD layout backend forced, but layout was not found: {Path}",
+                    config.Menu.HudLayoutPath);
+            }
+
+            core.Logger.LogInformation("[sws2-cs2menus] Using custom_hud_layout menu backend");
+            return hud;
+        }
+
+        if (HudLayoutMenuService.IsLayoutAvailable(core, config))
+        {
+            core.Logger.LogInformation("[sws2-cs2menus] Using custom_hud_layout menu backend");
+            return hud;
+        }
+
+        hud.Dispose();
+        core.Logger.LogInformation(
+            "[sws2-cs2menus] Custom HUD layout not mounted ({Path}); using classic center-HTML menu backend",
+            config.Menu.HudLayoutPath);
+        return new ClassicMenuBackend(core, config);
     }
 
     public override void Unload()

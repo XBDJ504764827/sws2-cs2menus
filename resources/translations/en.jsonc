@@ -16,5 +16,7 @@
   "cs2menus.demo.disabled_option": "Disabled option",
   "cs2menus.demo.close": "Close menu",
   "cs2menus.demo.admin_option": "Admin-only option",
-  "cs2menus.demo.admin_selected": "Admin-only option selected."
+  "cs2menus.demo.admin_selected": "Admin-only option selected.",
+  "cs2menus.hud.footer": "Click an item",
+  "cs2menus.hud.back": "Back"
 }

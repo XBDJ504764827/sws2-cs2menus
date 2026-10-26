@@ -16,5 +16,7 @@
   "cs2menus.demo.disabled_option": "停用選項",
   "cs2menus.demo.close": "關閉選單",
   "cs2menus.demo.admin_option": "僅管理員選項",
-  "cs2menus.demo.admin_selected": "已選擇僅管理員選項。"
+  "cs2menus.demo.admin_selected": "已選擇僅管理員選項。",
+  "cs2menus.hud.footer": "點擊選項",
+  "cs2menus.hud.back": "返回"
 }
