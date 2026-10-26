@@ -46,6 +46,7 @@ deprecated classic `Core.MenusAPI`.
 csgo/addons/swiftlys2/plugins/
 └── sws2-cs2menus/
     ├── sws2-cs2menus.dll
+    ├── Sws2Cs2Menus.Contracts.dll
     └── resources/
         ├── exports/Sws2Cs2Menus.Contracts.dll
         ├── templates/config.template.jsonc
