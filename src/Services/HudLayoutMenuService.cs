@@ -464,8 +464,12 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 var itemIndex = frame.Page * pageSize + index;
                 if (itemIndex >= 0 && itemIndex < visibleOptions.Count)
                 {
-                    option = visibleOptions[itemIndex];
-                    session.Busy = true;
+                    var candidate = visibleOptions[itemIndex];
+                    if (candidate.Enabled)
+                    {
+                        option = candidate;
+                        session.Busy = true;
+                    }
                 }
             }
 
