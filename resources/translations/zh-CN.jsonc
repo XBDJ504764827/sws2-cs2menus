@@ -16,5 +16,7 @@
   "cs2menus.demo.disabled_option": "禁用选项",
   "cs2menus.demo.close": "关闭菜单",
   "cs2menus.demo.admin_option": "仅管理员选项",
-  "cs2menus.demo.admin_selected": "已选择仅管理员选项。"
+  "cs2menus.demo.admin_selected": "已选择仅管理员选项。",
+  "cs2menus.hud.footer": "点击选项",
+  "cs2menus.hud.back": "返回"
 }

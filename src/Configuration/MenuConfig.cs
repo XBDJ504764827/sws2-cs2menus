@@ -38,6 +38,18 @@ public sealed class MenuDefaults
     /// <summary>Optional default comment shown when an option has no comment.</summary>
     public string DefaultComment { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Renderer backend: auto, hudlayout or classic.
+    /// auto uses hudlayout when the Panorama layout is mounted, otherwise classic.
+    /// </summary>
+    public string Backend { get; set; } = "auto";
+
+    /// <summary>Panorama layout asset used by the hudlayout backend.</summary>
+    public string HudLayoutPath { get; set; } = "panorama/layout/custom_game/sws2cs2menus/menu.xml";
+
+    /// <summary>Workshop addon id for the HUD layout, when published.</summary>
+    public string HudLayoutWorkshopId { get; set; } = string.Empty;
+
     /// <summary>Color settings shared by all menus.</summary>
     public MenuColors Colors { get; set; } = new();
 

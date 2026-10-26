@@ -7,7 +7,6 @@ using Sws2Cs2Menus.Configuration;
 using Sws2Cs2Menus.Contracts;
 using Sws2Cs2Menus.Menus;
 using MenuBuilderContract = Sws2Cs2Menus.Contracts.IMenuBuilder;
-using MenuServiceContract = Sws2Cs2Menus.Contracts.IMenuService;
 
 namespace Sws2Cs2Menus.Services;
 
@@ -17,7 +16,7 @@ namespace Sws2Cs2Menus.Services;
 /// by the framework; this service adds the shared KZ menu contract, permission
 /// checks and lifecycle cleanup.
 /// </summary>
-internal sealed class MenuService : MenuServiceContract, IDisposable
+internal sealed class ClassicMenuBackend : IMenuBackend
 {
     private sealed class MenuFrame
     {
@@ -55,7 +54,7 @@ internal sealed class MenuService : MenuServiceContract, IDisposable
     private volatile bool _available;
     private bool _disposed;
 
-    public MenuService(ISwiftlyCore core, MenuConfig config)
+    public ClassicMenuBackend(ISwiftlyCore core, MenuConfig config)
     {
         _core = core;
         _logger = core.Logger;
@@ -72,6 +71,11 @@ internal sealed class MenuService : MenuServiceContract, IDisposable
     public void ApplyConfig(MenuConfig config)
     {
         _config = config;
+    }
+
+    public void OnPlayerJoined(IPlayer player)
+    {
+        // The classic renderer does not own per-player entities.
     }
 
     public MenuBuilderContract CreateMenu(string title)

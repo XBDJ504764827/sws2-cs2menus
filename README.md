@@ -21,6 +21,8 @@ deprecated classic `Core.MenusAPI`.
 
 - Shared `IMenuService` for other SwiftlyS2 plugins via the shared interface manager
 - Menu definitions with a fluent builder and nested submenus
+- Custom HUD menu backend using `custom_hud_layout` and a Panorama workshop addon
+- Automatic fallback to the SwiftlyS2 center-HTML menu when the addon is absent
 - Automatic pagination (`PageSize`, clamped to 1-5 entries per page)
 - Back navigation to the parent menu and explicit close
 - Menu-level and option-level permission checks
@@ -36,6 +38,7 @@ deprecated classic `Core.MenusAPI`.
 - [SwiftlyS2](https://github.com/swiftly-solution/swiftlys2) **1.5.0 or newer**
   (the component menu framework was introduced in 1.5.0)
 - .NET 10 SDK (only needed to build from source)
+- Optional: **sws2cs2menus Workshop addon** for the `custom_hud_layout` renderer. See [`workshop/README.md`](workshop/README.md).
 
 ## Installation
 
@@ -83,6 +86,9 @@ template. The file is hot-reloaded.
       "ShowClose": true,
       "CloseOnSelect": true,
       "DefaultComment": "",
+      "Backend": "auto",
+      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml",
+      "HudLayoutWorkshopId": "",
       "Colors": {
         "Title": "#FFD700",
         "Comment": "#AAAAAA",
@@ -98,8 +104,21 @@ template. The file is hot-reloaded.
 }
 ```
 
-`DefaultPageSize` is clamped to `1`-`5`. Pagination and input keys are handled by
-SwiftlyS2's menu framework and its server-wide menu configuration.
+`DefaultPageSize` is clamped to `1`-`5`.
+
+`Backend` selects the renderer:
+
+- `auto`: use `custom_hud_layout` when `HudLayoutPath` is mounted, otherwise center HTML
+- `hudlayout`: force the custom HUD renderer
+- `classic`: force the SwiftlyS2 center-HTML renderer
+
+The custom HUD backend requires the Panorama addon from [`workshop/`](workshop/)
+to be mounted on clients through MultiAddonManager. See
+[`workshop/README.md`](workshop/README.md) for the complete Workshop Tools and
+MultiAddonManager procedure.
+
+`HudLayoutWorkshopId` is informational for now; add the published ID to
+MultiAddonManager's `mm_extra_addons`.
 
 ## Using the menu service
 
@@ -255,6 +274,9 @@ dotnet publish -c Release
 
 The release package is generated at `build/sws2-cs2menus.zip` and contains both
 the plugin and `resources/exports/Sws2Cs2Menus.Contracts.dll`.
+
+The Workshop addon is not part of the .NET package. Its source lives in
+`workshop/` and must be published separately with CS2 Workshop Tools.
 
 ## Versioning and releases
 
