@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <PackageReference Include="SwiftlyS2.CS2" Version="*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <!-- Pins the transitive MySqlConnector pulled in by SwiftlyS2.CS2 to a version without
+         GHSA-473q-m89c-ghf8, matching the plugin project. -->
+    <PackageReference Include="MySqlConnector" Version="2.6.1" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
