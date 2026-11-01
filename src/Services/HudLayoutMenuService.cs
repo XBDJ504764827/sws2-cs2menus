@@ -18,6 +18,22 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 {
     private const int ItemSlots = 5;
 
+    // Panels whose "hidden"/"disabled" class is driven by the server. They are reset right after
+    // spawn, so the layout may start either visible or collapsed without changing the result.
+    private static readonly string[] PanelIds =
+    [
+        "sw_root",
+        "sw_comment",
+        "sw_prev",
+        "sw_next",
+        "sw_back",
+        "sw_close",
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
+    ];
+
+    private static readonly string[] ResetClassNames = ["hidden", "disabled"];
+
     private sealed class MenuFrame
     {
         public required IMenuDefinition Menu { get; init; }
@@ -319,6 +335,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             session.Variables.Clear();
             session.Classes.Clear();
             session.InputCapture = false;
+
+            ResetClassesLocked(session, entity);
 
             foreach (var other in _core.PlayerManager.GetAllValidPlayers())
             {
@@ -721,6 +739,37 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         catch (Exception exception)
         {
             _logger.LogDebug(exception, "[sws2-cs2menus] Failed to set HUD class {PanelId}/{Class}", panelId, className);
+        }
+    }
+
+    /// <summary>
+    /// Clears every class the runtime drives, so a layout that ships with panels already
+    /// collapsed still becomes visible. Without this the class cache would assume the panels
+    /// start clean and never remove a class the layout applied itself.
+    /// </summary>
+    private void ResetClassesLocked(PlayerSession session, CCSCustomHudLayout entity)
+    {
+        foreach (var panelId in PanelIds)
+        {
+            foreach (var className in ResetClassNames)
+            {
+                try
+                {
+                    entity.SetHasClassForPlayer(
+                        session.Player.PlayerID,
+                        panelId,
+                        className,
+                        EHudPanelClassStatus_t.k_eHudPanelClassStatus_DoesNotHaveClass);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogDebug(
+                        exception,
+                        "[sws2-cs2menus] Failed to reset HUD class {PanelId}/{Class}",
+                        panelId,
+                        className);
+                }
+            }
         }
     }
 

@@ -1,3 +1,9 @@
+/* Shared state classes. The server adds or removes these; it never assumes a starting state,
+   so no element in menu.xml starts with "hidden". */
+.hidden {
+    visibility: collapse;
+}
+
 .root {
     width: 100%;
     height: 100%;
@@ -7,31 +13,35 @@
 #sw_root {
     width: 100%;
     height: 100%;
-    transition-property: opacity;
-    transition-duration: 0.1s;
-    transition-timing-function: ease-in-out;
-}
-
-#sw_root.hidden {
-    visibility: collapse;
 }
 
 .menu-box {
-    width: 680px;
+    width: 720px;
     horizontal-align: center;
     vertical-align: middle;
     flow-children: down;
-    padding: 18px;
+    padding: 16px 18px 18px 18px;
     border: 1px solid #ffffff22;
     border-radius: 6px;
     background-color: rgba(8, 10, 14, 0.94);
     box-shadow: fill #00000099 0px 8px 24px 0px;
 }
 
-.window-header {
+/* Header */
+
+.menu-header {
     width: 100%;
     flow-children: right;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.menu-accent {
+    width: 4px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: center;
+    background-color: #ffd700;
+    border-radius: 2px;
 }
 
 .menu-title {
@@ -51,8 +61,8 @@
 }
 
 .close-btn {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     background-color: #ffffff12;
     border-radius: 3px;
 }
@@ -70,19 +80,22 @@
     font-size: 14px;
 }
 
+/* Comment line under the header */
+
 .menu-comment {
     width: 100%;
     margin-bottom: 10px;
-}
-
-.menu-comment.hidden {
-    visibility: collapse;
+    padding: 6px 10px;
+    background-color: #ffffff08;
+    border-radius: 4px;
 }
 
 .menu-comment-text {
     color: #aaaaaa;
     font-size: 13px;
 }
+
+/* Option rows */
 
 .menu-items {
     width: 100%;
@@ -91,14 +104,11 @@
 
 .item {
     width: 100%;
-    min-height: 46px;
-    margin-bottom: 5px;
-    padding: 8px 12px;
-    flow-children: down;
+    min-height: 50px;
+    margin-bottom: 6px;
+    flow-children: right;
     border-radius: 4px;
     background-color: #ffffff0d;
-    transition-property: background-color, border-color;
-    transition-duration: 0.08s;
 }
 
 .item:hover {
@@ -109,40 +119,54 @@
     background-color: #ffd70033;
 }
 
-.item.hidden {
-    visibility: collapse;
-}
-
 .item.disabled {
     opacity: 0.45;
 }
 
+.item-accent {
+    width: 3px;
+    height: 100%;
+    background-color: #ffffff22;
+    border-radius: 2px;
+}
+
+.item:hover .item-accent {
+    background-color: #ffd700;
+}
+
+.item-body {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    padding: 8px 12px;
+    vertical-align: center;
+}
+
 .item-text {
     color: #ffffff;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .item-comment {
+    margin-top: 2px;
     color: #9aa0a6;
     font-size: 12px;
 }
 
-.item-comment.hidden {
-    visibility: collapse;
-}
+/* Footer: paging, back, and the status line */
 
 .menu-footer {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 12px;
     flow-children: right;
     horizontal-align: center;
 }
 
 .nav-btn {
-    min-width: 38px;
-    height: 28px;
+    min-width: 40px;
+    height: 30px;
     margin-left: 4px;
     margin-right: 4px;
+    padding: 0px 10px;
     background-color: #ffffff12;
     border-radius: 3px;
 }
@@ -151,16 +175,12 @@
     background-color: #ffffff2a;
 }
 
-.nav-btn.hidden {
-    visibility: collapse;
-}
-
 .nav-label {
     width: 100%;
     text-align: center;
     vertical-align: center;
     color: #ffffff;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .footer-text {

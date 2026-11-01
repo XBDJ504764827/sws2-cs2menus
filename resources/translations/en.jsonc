@@ -17,6 +17,15 @@
   "cs2menus.demo.close": "Close menu",
   "cs2menus.demo.admin_option": "Admin-only option",
   "cs2menus.demo.admin_selected": "Admin-only option selected.",
+  "cs2menus.demo.players": "Players",
+  "cs2menus.demo.players.title": "Demo Players",
+  "cs2menus.demo.players.comment": "Demo only. Selecting a player does not run any action.",
+  "cs2menus.demo.players.none": "No players online",
+  "cs2menus.demo.players.selected": "Demo: selected player {0}, no action taken.",
+  "cs2menus.demo.maps": "Maps",
+  "cs2menus.demo.maps.title": "Demo Maps",
+  "cs2menus.demo.maps.comment": "Demo only. Selecting a map does not change the map.",
+  "cs2menus.demo.maps.selected": "Demo: selected map {0}, map not changed.",
   "cs2menus.hud.footer": "Click an item",
   "cs2menus.hud.back": "Back"
 }
