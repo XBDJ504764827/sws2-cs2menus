@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - Keep the HUD layout Back label on one line by widening the button, setting an explicit label width and inserting word joiners between characters so older Workshop layouts cannot wrap it vertically.
+- Add `Menu.HudBackLabel` and default it to a compact `←` so older Workshop layouts with a narrow button do not clip the label.
 
 ### Added
 

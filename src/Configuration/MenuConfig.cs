@@ -50,6 +50,13 @@ public sealed class MenuDefaults
     /// <summary>Workshop addon id for the HUD layout, when published.</summary>
     public string HudLayoutWorkshopId { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Text shown on the HUD layout Back button. Keep it short when an older Workshop
+    /// layout has a fixed, narrow button width. Set this to an empty string to use the
+    /// localized "Back" translation instead.
+    /// </summary>
+    public string HudBackLabel { get; set; } = "←";
+
     /// <summary>Color settings shared by all menus.</summary>
     public MenuColors Colors { get; set; } = new();
 
