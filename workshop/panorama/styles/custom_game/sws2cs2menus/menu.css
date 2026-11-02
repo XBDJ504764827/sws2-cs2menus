@@ -190,8 +190,8 @@
 }
 
 #sw_back_text {
-    width: 100%;
-    min-width: 64px;
+    width: 72px;
+    min-width: 72px;
     white-space: nowrap;
     text-overflow: noclip;
     text-align: center;

@@ -402,7 +402,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetTextLocked(session, "sw_page", $"{frame.Page + 1}/{pageCount}");
         SetTextLocked(session, "sw_comment_text", menu.Comment ?? string.Empty);
         SetTextLocked(session, "sw_footer", localizer["cs2menus.hud.footer"]);
-        SetTextLocked(session, "sw_back_text", localizer["cs2menus.hud.back"]);
+        SetTextLocked(session, "sw_back_text", KeepOnOneLine(localizer["cs2menus.hud.back"]));
         SetClassLocked(session, "sw_comment", "hidden", string.IsNullOrWhiteSpace(menu.Comment));
 
         for (var i = 0; i < ItemSlots; i++)
@@ -683,6 +683,20 @@ internal sealed class HudLayoutMenuService : IMenuBackend
     private void SetTextLocked(PlayerSession session, string panelId, string value)
     {
         SetVariableLocked(session, panelId, "\u2060" + value);
+    }
+
+    /// <summary>
+    /// Inserts word joiners between characters and removes control characters so short labels
+    /// such as "返回" stay on one line even when an older Workshop layout gives the label a
+    /// narrow width or a translation contains a line break.
+    /// </summary>
+    private static string KeepOnOneLine(string value)
+    {
+        var characters = value
+            .Where(character => !char.IsControl(character))
+            .Select(character => char.IsWhiteSpace(character) ? '\u00A0' : character)
+            .ToArray();
+        return string.Join("\u2060", characters);
     }
 
     private void SetVariableLocked(PlayerSession session, string panelId, string value)
