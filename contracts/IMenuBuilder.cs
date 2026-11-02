@@ -59,6 +59,9 @@ public interface IMenuOptionBuilder
     /// <summary>Sets an optional comment.</summary>
     IMenuOptionBuilder Comment(string? comment);
 
+    /// <summary>Sets an optional HTTPS image URL for HUD layout renderers.</summary>
+    IMenuOptionBuilder Image(string? imageUrl);
+
     /// <summary>Sets the text colour in #RRGGBB format.</summary>
     IMenuOptionBuilder Color(string? hexColor);
 

@@ -4,9 +4,11 @@
   </styles>
 
   <Panel class="root" hittest="false">
-    <Panel id="sw_root" class="menu hidden">
+    <Panel id="sw_root">
       <Panel class="menu-box">
-        <Panel class="window-header">
+
+        <Panel class="menu-header">
+          <Panel class="menu-accent" />
           <Label id="sw_title" class="menu-title" text="{s:sw_title}" />
           <Label id="sw_page" class="menu-page" text="{s:sw_page}" />
           <Button id="sw_close" class="close-btn">
@@ -14,30 +16,50 @@
           </Button>
         </Panel>
 
-        <Panel id="sw_comment" class="menu-comment hidden">
+        <Panel id="sw_comment" class="menu-comment">
           <Label id="sw_comment_text" class="menu-comment-text" text="{s:sw_comment_text}" />
         </Panel>
 
         <Panel class="menu-items">
-          <Button id="sw_item0" class="item hidden">
-            <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" />
-            <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" />
+          <Button id="sw_item0" class="item">
+            <Panel class="item-accent" />
+            <Image id="sw_item0_image" class="item-image" src="{s:sw_item0_image}" />
+            <Panel class="item-body">
+              <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" />
+              <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" />
+            </Panel>
           </Button>
-          <Button id="sw_item1" class="item hidden">
-            <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" />
-            <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" />
+          <Button id="sw_item1" class="item">
+            <Panel class="item-accent" />
+            <Image id="sw_item1_image" class="item-image" src="{s:sw_item1_image}" />
+            <Panel class="item-body">
+              <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" />
+              <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" />
+            </Panel>
           </Button>
-          <Button id="sw_item2" class="item hidden">
-            <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" />
-            <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" />
+          <Button id="sw_item2" class="item">
+            <Panel class="item-accent" />
+            <Image id="sw_item2_image" class="item-image" src="{s:sw_item2_image}" />
+            <Panel class="item-body">
+              <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" />
+              <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" />
+            </Panel>
           </Button>
-          <Button id="sw_item3" class="item hidden">
-            <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" />
-            <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" />
+          <Button id="sw_item3" class="item">
+            <Panel class="item-accent" />
+            <Image id="sw_item3_image" class="item-image" src="{s:sw_item3_image}" />
+            <Panel class="item-body">
+              <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" />
+              <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" />
+            </Panel>
           </Button>
-          <Button id="sw_item4" class="item hidden">
-            <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" />
-            <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" />
+          <Button id="sw_item4" class="item">
+            <Panel class="item-accent" />
+            <Image id="sw_item4_image" class="item-image" src="{s:sw_item4_image}" />
+            <Panel class="item-body">
+              <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" />
+              <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" />
+            </Panel>
           </Button>
         </Panel>
 
@@ -49,10 +71,11 @@
           <Button id="sw_next" class="nav-btn">
             <Label class="nav-label" text="&gt;" />
           </Button>
-          <Button id="sw_back" class="nav-btn hidden">
+          <Button id="sw_back" class="nav-btn">
             <Label id="sw_back_text" class="nav-label" text="{s:sw_back_text}" />
           </Button>
         </Panel>
+
       </Panel>
     </Panel>
   </Panel>

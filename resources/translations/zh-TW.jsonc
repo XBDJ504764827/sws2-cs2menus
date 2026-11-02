@@ -17,6 +17,15 @@
   "cs2menus.demo.close": "關閉選單",
   "cs2menus.demo.admin_option": "僅管理員選項",
   "cs2menus.demo.admin_selected": "已選擇僅管理員選項。",
+  "cs2menus.demo.players": "玩家",
+  "cs2menus.demo.players.title": "示範玩家",
+  "cs2menus.demo.players.comment": "僅供示範，選擇玩家不會執行任何操作。",
+  "cs2menus.demo.players.none": "目前沒有玩家在線",
+  "cs2menus.demo.players.selected": "示範：已選擇玩家 {0}，未執行操作。",
+  "cs2menus.demo.maps": "地圖",
+  "cs2menus.demo.maps.title": "示範地圖",
+  "cs2menus.demo.maps.comment": "僅供示範，選擇地圖不會更換地圖。",
+  "cs2menus.demo.maps.selected": "示範：已選擇地圖 {0}，未更換地圖。",
   "cs2menus.hud.footer": "點擊選項",
   "cs2menus.hud.back": "返回"
 }

@@ -18,6 +18,24 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 {
     private const int ItemSlots = 5;
 
+    // Panels whose "hidden"/"disabled" class is driven by the server. They are reset right after
+    // spawn, so the layout may start either visible or collapsed without changing the result.
+    private static readonly string[] PanelIds =
+    [
+        "sw_root",
+        "sw_comment",
+        "sw_prev",
+        "sw_next",
+        "sw_back",
+        "sw_close",
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_image"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
+    ];
+
+    private static readonly string[] ResetClassNames =
+        ["hidden", "disabled", "has-image", "menu-refresh-a", "menu-refresh-b"];
+
     private sealed class MenuFrame
     {
         public required IMenuDefinition Menu { get; init; }
@@ -40,6 +58,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         public bool InputCapture { get; set; }
 
         public bool Busy { get; set; }
+
+        public bool AnimationToggle { get; set; }
     }
 
     private readonly ISwiftlyCore _core;
@@ -320,6 +340,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             session.Classes.Clear();
             session.InputCapture = false;
 
+            ResetClassesLocked(session, entity);
+
             foreach (var other in _core.PlayerManager.GetAllValidPlayers())
             {
                 if (other.PlayerID != session.Player.PlayerID)
@@ -383,7 +405,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetTextLocked(session, "sw_page", $"{frame.Page + 1}/{pageCount}");
         SetTextLocked(session, "sw_comment_text", menu.Comment ?? string.Empty);
         SetTextLocked(session, "sw_footer", localizer["cs2menus.hud.footer"]);
-        SetTextLocked(session, "sw_back_text", localizer["cs2menus.hud.back"]);
+        SetTextLocked(session, "sw_back_text", KeepOnOneLine(localizer["cs2menus.hud.back"]));
         SetClassLocked(session, "sw_comment", "hidden", string.IsNullOrWhiteSpace(menu.Comment));
 
         for (var i = 0; i < ItemSlots; i++)
@@ -399,9 +421,12 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             var comment = option.Comment ?? _config.Menu.DefaultComment;
             SetTextLocked(session, $"{panel}_text", option.Text);
             SetTextLocked(session, $"{panel}_comment", comment);
+            SetVariableLocked(session, $"{panel}_image", option.ImageUrl ?? string.Empty);
             SetClassLocked(session, panel, "hidden", false);
             SetClassLocked(session, panel, "disabled", !option.Enabled);
+            SetClassLocked(session, panel, "has-image", !string.IsNullOrWhiteSpace(option.ImageUrl));
             SetClassLocked(session, $"{panel}_comment", "hidden", string.IsNullOrWhiteSpace(comment));
+            SetClassLocked(session, $"{panel}_image", "hidden", string.IsNullOrWhiteSpace(option.ImageUrl));
         }
 
         SetClassLocked(session, "sw_prev", "hidden", frame.Page <= 0);
@@ -409,8 +434,28 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetClassLocked(session, "sw_back", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
         SetClassLocked(session, "sw_close", "hidden", !menu.ShowClose);
         SetClassLocked(session, "sw_root", "hidden", false);
+        RestartMenuAnimationLocked(session);
 
         SetInputCaptureLocked(session, true);
+    }
+
+    private void RestartMenuAnimationLocked(PlayerSession session)
+    {
+        // Alternating class names retrigger the CSS keyframes after every page or submenu
+        // change. The Panorama layout owns the actual animation.
+        var nextIsFirst = !session.AnimationToggle;
+        session.AnimationToggle = nextIsFirst;
+
+        SetClassLocked(
+            session,
+            "sw_root",
+            nextIsFirst ? "menu-refresh-b" : "menu-refresh-a",
+            false);
+        SetClassLocked(
+            session,
+            "sw_root",
+            nextIsFirst ? "menu-refresh-a" : "menu-refresh-b",
+            true);
     }
 
     private void OnCustomHudClicked(IOnCustomHudClickedEvent @event)
@@ -660,6 +705,25 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
     private void SetTextLocked(PlayerSession session, string panelId, string value)
     {
+        SetVariableLocked(session, panelId, "\u2060" + value);
+    }
+
+    /// <summary>
+    /// Inserts word joiners between characters and removes control characters so short labels
+    /// such as "返回" stay on one line even when an older Workshop layout gives the label a
+    /// narrow width or a translation contains a line break.
+    /// </summary>
+    private static string KeepOnOneLine(string value)
+    {
+        var characters = value
+            .Where(character => !char.IsControl(character))
+            .Select(character => char.IsWhiteSpace(character) ? '\u00A0' : character)
+            .ToArray();
+        return string.Join("\u2060", characters);
+    }
+
+    private void SetVariableLocked(PlayerSession session, string panelId, string value)
+    {
         if (session.Entity is not { IsValidEntity: true } entity)
         {
             return;
@@ -672,12 +736,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
         try
         {
-            // A word joiner prevents the client from localizing values such as "#1".
             entity.SetDialogVariableStringForPlayer(
                 session.Player.PlayerID,
                 panelId,
                 panelId,
-                "\u2060" + value);
+                value);
             session.Variables[panelId] = value;
         }
         catch (Exception exception)
@@ -721,6 +784,37 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         catch (Exception exception)
         {
             _logger.LogDebug(exception, "[sws2-cs2menus] Failed to set HUD class {PanelId}/{Class}", panelId, className);
+        }
+    }
+
+    /// <summary>
+    /// Clears every class the runtime drives, so a layout that ships with panels already
+    /// collapsed still becomes visible. Without this the class cache would assume the panels
+    /// start clean and never remove a class the layout applied itself.
+    /// </summary>
+    private void ResetClassesLocked(PlayerSession session, CCSCustomHudLayout entity)
+    {
+        foreach (var panelId in PanelIds)
+        {
+            foreach (var className in ResetClassNames)
+            {
+                try
+                {
+                    entity.SetHasClassForPlayer(
+                        session.Player.PlayerID,
+                        panelId,
+                        className,
+                        EHudPanelClassStatus_t.k_eHudPanelClassStatus_DoesNotHaveClass);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogDebug(
+                        exception,
+                        "[sws2-cs2menus] Failed to reset HUD class {PanelId}/{Class}",
+                        panelId,
+                        className);
+                }
+            }
         }
     }
 

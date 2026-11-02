@@ -1,3 +1,9 @@
+/* Shared state classes. The server adds or removes these; it never assumes a starting state,
+   so no element in menu.xml starts with "hidden". */
+.hidden {
+    visibility: collapse;
+}
+
 .root {
     width: 100%;
     height: 100%;
@@ -7,58 +13,75 @@
 #sw_root {
     width: 100%;
     height: 100%;
-    transition-property: opacity;
-    transition-duration: 0.1s;
-    transition-timing-function: ease-in-out;
 }
 
-#sw_root.hidden {
-    visibility: collapse;
-}
-
+/* Full-height left sidebar. Keeping the panel on the edge leaves the game view readable
+   while the option list stays comfortably wide for map names and Workshop thumbnails. */
 .menu-box {
-    width: 680px;
-    horizontal-align: center;
-    vertical-align: middle;
+    width: 420px;
+    height: 100%;
+    horizontal-align: left;
+    vertical-align: top;
     flow-children: down;
-    padding: 18px;
-    border: 1px solid #ffffff22;
-    border-radius: 6px;
-    background-color: rgba(8, 10, 14, 0.94);
-    box-shadow: fill #00000099 0px 8px 24px 0px;
+    border-left: 4px solid #ffd700;
+    border-right: 1px solid #ffffff1a;
+    background-color: rgba(8, 10, 14, 0.96);
+    box-shadow: fill #000000aa 6px 0px 24px 0px;
+    animation-name: menu-sidebar-in;
+    animation-duration: 0.22s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
 }
 
-.window-header {
+/* Header */
+
+.menu-header {
     width: 100%;
     flow-children: right;
-    margin-bottom: 10px;
+    padding: 16px 16px 12px 16px;
+    background-color: #ffffff05;
+    border-bottom: 1px solid #ffffff12;
+}
+
+.menu-accent {
+    width: 4px;
+    height: 22px;
+    margin-right: 10px;
+    vertical-align: center;
+    background-color: #ffd700;
+    border-radius: 2px;
 }
 
 .menu-title {
     width: fill-parent-flow(1);
     vertical-align: center;
     color: #ffd700;
-    font-size: 20px;
+    font-size: 19px;
     font-weight: bold;
     letter-spacing: 1px;
 }
 
 .menu-page {
     vertical-align: center;
-    margin-right: 10px;
-    color: #aaaaaa;
-    font-size: 14px;
+    margin-right: 9px;
+    padding: 2px 8px;
+    color: #d0d0d0;
+    font-size: 12px;
+    background-color: #ffffff12;
+    border-radius: 9px;
 }
 
 .close-btn {
-    width: 24px;
-    height: 24px;
-    background-color: #ffffff12;
-    border-radius: 3px;
+    width: 26px;
+    height: 26px;
+    background-color: #ffffff10;
+    border-radius: 4px;
+    transition-property: background-color;
+    transition-duration: 0.08s;
 }
 
 .close-btn:hover {
-    background-color: #ffffff2a;
+    background-color: #ffd70033;
 }
 
 .close-label {
@@ -70,51 +93,84 @@
     font-size: 14px;
 }
 
+/* Comment line under the header */
+
 .menu-comment {
     width: 100%;
-    margin-bottom: 10px;
-}
-
-.menu-comment.hidden {
-    visibility: collapse;
+    padding: 9px 16px;
+    background-color: #ffffff06;
+    border-bottom: 1px solid #ffffff0d;
 }
 
 .menu-comment-text {
-    color: #aaaaaa;
-    font-size: 13px;
+    color: #9aa0a6;
+    font-size: 12px;
 }
+
+/* Option rows */
 
 .menu-items {
     width: 100%;
+    height: fill-parent-flow(1);
+    padding: 10px 12px 6px 12px;
     flow-children: down;
 }
 
 .item {
     width: 100%;
-    min-height: 46px;
-    margin-bottom: 5px;
-    padding: 8px 12px;
-    flow-children: down;
-    border-radius: 4px;
-    background-color: #ffffff0d;
-    transition-property: background-color, border-color;
+    min-height: 48px;
+    margin-bottom: 6px;
+    flow-children: right;
+    border: 1px solid #ffffff0d;
+    border-radius: 5px;
+    background-color: #ffffff08;
+    transition-property: background-color, border-color, transform;
     transition-duration: 0.08s;
+    transition-timing-function: ease-out;
+}
+
+.item.has-image {
+    min-height: 64px;
 }
 
 .item:hover {
-    background-color: #ffd7001f;
+    background-color: #ffd70018;
+    border: 1px solid #ffd70055;
 }
 
 .item:active {
-    background-color: #ffd70033;
-}
-
-.item.hidden {
-    visibility: collapse;
+    background-color: #ffd7002e;
+    transform: translate3d(2px, 0px, 0px) scale3d(0.99, 0.99, 1);
 }
 
 .item.disabled {
-    opacity: 0.45;
+    opacity: 0.42;
+}
+
+.item-accent {
+    width: 3px;
+    height: 100%;
+    background-color: #ffffff1f;
+}
+
+.item:hover .item-accent {
+    background-color: #ffd700;
+}
+
+.item-body {
+    width: fill-parent-flow(1);
+    flow-children: down;
+    padding: 8px 12px;
+    vertical-align: center;
+}
+
+.item-image {
+    width: 82px;
+    height: 46px;
+    margin-left: 8px;
+    vertical-align: center;
+    background-color: #20252b;
+    border-radius: 3px;
 }
 
 .item-text {
@@ -123,36 +179,54 @@
 }
 
 .item-comment {
+    margin-top: 2px;
     color: #9aa0a6;
-    font-size: 12px;
+    font-size: 11px;
 }
 
-.item-comment.hidden {
-    visibility: collapse;
-}
+/* Footer: paging, back, and the status line */
 
 .menu-footer {
     width: 100%;
-    margin-top: 10px;
+    padding: 10px 12px 12px 12px;
     flow-children: right;
-    horizontal-align: center;
+    background-color: #ffffff04;
+    border-top: 1px solid #ffffff12;
 }
 
 .nav-btn {
-    min-width: 38px;
+    min-width: 34px;
     height: 28px;
-    margin-left: 4px;
-    margin-right: 4px;
-    background-color: #ffffff12;
-    border-radius: 3px;
+    margin-left: 3px;
+    padding: 0px 8px;
+    background-color: #ffffff10;
+    border-radius: 4px;
+    transition-property: background-color, transform;
+    transition-duration: 0.08s;
+}
+
+#sw_back {
+    width: 82px;
+    min-width: 82px;
+    padding: 0px 10px;
+}
+
+#sw_back_text {
+    width: 58px;
+    min-width: 58px;
+    white-space: nowrap;
+    text-overflow: noclip;
+    text-align: center;
+    vertical-align: center;
+    font-size: 12px;
 }
 
 .nav-btn:hover {
-    background-color: #ffffff2a;
+    background-color: #ffd70033;
 }
 
-.nav-btn.hidden {
-    visibility: collapse;
+.nav-btn:active {
+    transform: scale3d(0.96, 0.96, 1);
 }
 
 .nav-label {
@@ -161,12 +235,64 @@
     vertical-align: center;
     color: #ffffff;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 .footer-text {
+    width: fill-parent-flow(1);
     vertical-align: center;
+    text-align: left;
     color: #9aa0a6;
-    font-size: 12px;
-    margin-left: 10px;
-    margin-right: 10px;
+    font-size: 11px;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+/* Submenu and page changes. The server alternates these classes so the
+   Panorama animation restarts even when the option count stays the same. */
+#sw_root.menu-refresh-a .menu-items {
+    animation-name: menu-items-in-a;
+    animation-duration: 0.16s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
+}
+
+#sw_root.menu-refresh-b .menu-items {
+    animation-name: menu-items-in-b;
+    animation-duration: 0.16s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
+}
+
+@keyframes 'menu-sidebar-in' {
+    0% {
+        opacity: 0;
+        transform: translate3d(-28px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
+}
+
+@keyframes 'menu-items-in-a' {
+    0% {
+        opacity: 0.25;
+        transform: translate3d(10px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
+}
+
+@keyframes 'menu-items-in-b' {
+    0% {
+        opacity: 0.25;
+        transform: translate3d(10px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
 }
