@@ -157,6 +157,7 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
     private string _id = $"option-{Guid.NewGuid():N}"[..15];
     private string _text = string.Empty;
     private string? _comment;
+    private string? _imageUrl;
     private string? _color;
     private string? _permission;
     private bool _hidden;
@@ -184,6 +185,15 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
     public IMenuOptionBuilder Comment(string? comment)
     {
         _comment = comment;
+        return this;
+    }
+
+    public IMenuOptionBuilder Image(string? imageUrl)
+    {
+        _imageUrl = Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri)
+            && uri.Scheme == Uri.UriSchemeHttps
+                ? uri.ToString()
+                : null;
         return this;
     }
 
@@ -236,6 +246,7 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
             Id = _id,
             Text = string.IsNullOrWhiteSpace(_text) ? _id : _text,
             Comment = _comment,
+            ImageUrl = _imageUrl,
             Color = _color,
             Permission = _permission,
             Hidden = _hidden,

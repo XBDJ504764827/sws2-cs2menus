@@ -23,6 +23,7 @@
         <Panel class="menu-items">
           <Button id="sw_item0" class="item">
             <Panel class="item-accent" />
+            <Image id="sw_item0_image" class="item-image" src="{s:sw_item0_image}" />
             <Panel class="item-body">
               <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" />
               <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" />
@@ -30,6 +31,7 @@
           </Button>
           <Button id="sw_item1" class="item">
             <Panel class="item-accent" />
+            <Image id="sw_item1_image" class="item-image" src="{s:sw_item1_image}" />
             <Panel class="item-body">
               <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" />
               <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" />
@@ -37,6 +39,7 @@
           </Button>
           <Button id="sw_item2" class="item">
             <Panel class="item-accent" />
+            <Image id="sw_item2_image" class="item-image" src="{s:sw_item2_image}" />
             <Panel class="item-body">
               <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" />
               <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" />
@@ -44,6 +47,7 @@
           </Button>
           <Button id="sw_item3" class="item">
             <Panel class="item-accent" />
+            <Image id="sw_item3_image" class="item-image" src="{s:sw_item3_image}" />
             <Panel class="item-body">
               <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" />
               <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" />
@@ -51,6 +55,7 @@
           </Button>
           <Button id="sw_item4" class="item">
             <Panel class="item-accent" />
+            <Image id="sw_item4_image" class="item-image" src="{s:sw_item4_image}" />
             <Panel class="item-body">
               <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" />
               <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" />

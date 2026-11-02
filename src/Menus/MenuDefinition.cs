@@ -35,6 +35,8 @@ internal sealed class MenuOptionDefinition : IMenuOptionDefinition
 
     public string? Comment { get; init; }
 
+    public string? ImageUrl { get; init; }
+
     public string? Color { get; init; }
 
     public string? Permission { get; init; }

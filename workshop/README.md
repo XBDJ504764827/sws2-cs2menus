@@ -10,9 +10,9 @@ workshop/
     └── styles/custom_game/sws2cs2menus/menu.css
 ```
 
-The layout provides five clickable item slots, a title, page indicator, comment
-line, previous/next page buttons, a Back button and a Close button. All labels
-are plain text; colors and visibility are controlled by CSS classes.
+The layout provides five clickable item slots, optional item thumbnails, a title,
+page indicator, comment line, previous/next page buttons, a Back button and a
+Close button. Colors and visibility are controlled by CSS classes.
 
 ## 1. Create the addon
 
@@ -110,6 +110,7 @@ Reload `sws2-cs2menus` or restart the server, then run:
 - `<` and `>` change pages.
 - `Back` returns to the parent menu.
 - `X` closes the menu and releases the cursor.
+- Map menus can show Steam Workshop preview images beside map names and authors.
 
 ## Troubleshooting
 

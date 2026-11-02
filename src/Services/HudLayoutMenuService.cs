@@ -29,10 +29,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         "sw_back",
         "sw_close",
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_image"),
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
     ];
 
-    private static readonly string[] ResetClassNames = ["hidden", "disabled"];
+    private static readonly string[] ResetClassNames = ["hidden", "disabled", "has-image"];
 
     private sealed class MenuFrame
     {
@@ -417,9 +418,12 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             var comment = option.Comment ?? _config.Menu.DefaultComment;
             SetTextLocked(session, $"{panel}_text", option.Text);
             SetTextLocked(session, $"{panel}_comment", comment);
+            SetVariableLocked(session, $"{panel}_image", option.ImageUrl ?? string.Empty);
             SetClassLocked(session, panel, "hidden", false);
             SetClassLocked(session, panel, "disabled", !option.Enabled);
+            SetClassLocked(session, panel, "has-image", !string.IsNullOrWhiteSpace(option.ImageUrl));
             SetClassLocked(session, $"{panel}_comment", "hidden", string.IsNullOrWhiteSpace(comment));
+            SetClassLocked(session, $"{panel}_image", "hidden", string.IsNullOrWhiteSpace(option.ImageUrl));
         }
 
         SetClassLocked(session, "sw_prev", "hidden", frame.Page <= 0);
@@ -678,6 +682,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
     private void SetTextLocked(PlayerSession session, string panelId, string value)
     {
+        SetVariableLocked(session, panelId, "\u2060" + value);
+    }
+
+    private void SetVariableLocked(PlayerSession session, string panelId, string value)
+    {
         if (session.Entity is not { IsValidEntity: true } entity)
         {
             return;
@@ -690,12 +699,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
         try
         {
-            // A word joiner prevents the client from localizing values such as "#1".
             entity.SetDialogVariableStringForPlayer(
                 session.Player.PlayerID,
                 panelId,
                 panelId,
-                "\u2060" + value);
+                value);
             session.Variables[panelId] = value;
         }
         catch (Exception exception)

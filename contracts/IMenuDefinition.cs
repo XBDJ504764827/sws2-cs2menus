@@ -81,6 +81,9 @@ public interface IMenuOptionDefinition
     /// <summary>Optional comment displayed while the option is highlighted.</summary>
     string? Comment { get; }
 
+    /// <summary>Optional HTTPS image URL shown beside the option in the HUD layout renderer.</summary>
+    string? ImageUrl { get; }
+
     /// <summary>Optional text colour in #RRGGBB format.</summary>
     string? Color { get; }
 

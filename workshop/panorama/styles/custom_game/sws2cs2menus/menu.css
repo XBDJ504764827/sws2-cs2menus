@@ -111,6 +111,10 @@
     background-color: #ffffff0d;
 }
 
+.item.has-image {
+    min-height: 82px;
+}
+
 .item:hover {
     background-color: #ffd7001f;
 }
@@ -139,6 +143,14 @@
     flow-children: down;
     padding: 8px 12px;
     vertical-align: center;
+}
+
+.item-image {
+    width: 112px;
+    height: 63px;
+    margin-left: 8px;
+    vertical-align: center;
+    background-color: #20252b;
 }
 
 .item-text {
@@ -171,6 +183,11 @@
     border-radius: 3px;
 }
 
+#sw_back {
+    width: 64px;
+    min-width: 64px;
+}
+
 .nav-btn:hover {
     background-color: #ffffff2a;
 }
@@ -181,6 +198,7 @@
     vertical-align: center;
     color: #ffffff;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .footer-text {
