@@ -27,6 +27,10 @@
     border-right: 1px solid #ffffff1a;
     background-color: rgba(8, 10, 14, 0.96);
     box-shadow: fill #000000aa 6px 0px 24px 0px;
+    animation-name: menu-sidebar-in;
+    animation-duration: 0.22s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
 }
 
 /* Header */
@@ -72,6 +76,8 @@
     height: 26px;
     background-color: #ffffff10;
     border-radius: 4px;
+    transition-property: background-color;
+    transition-duration: 0.08s;
 }
 
 .close-btn:hover {
@@ -118,6 +124,9 @@
     border: 1px solid #ffffff0d;
     border-radius: 5px;
     background-color: #ffffff08;
+    transition-property: background-color, border-color, transform;
+    transition-duration: 0.08s;
+    transition-timing-function: ease-out;
 }
 
 .item.has-image {
@@ -131,6 +140,7 @@
 
 .item:active {
     background-color: #ffd7002e;
+    transform: translate3d(2px, 0px, 0px) scale3d(0.99, 0.99, 1);
 }
 
 .item.disabled {
@@ -191,6 +201,8 @@
     padding: 0px 8px;
     background-color: #ffffff10;
     border-radius: 4px;
+    transition-property: background-color, transform;
+    transition-duration: 0.08s;
 }
 
 #sw_back {
@@ -213,6 +225,10 @@
     background-color: #ffd70033;
 }
 
+.nav-btn:active {
+    transform: scale3d(0.96, 0.96, 1);
+}
+
 .nav-label {
     width: 100%;
     text-align: center;
@@ -230,4 +246,53 @@
     font-size: 11px;
     margin-left: 8px;
     margin-right: 8px;
+}
+
+/* Submenu and page changes. The server alternates these classes so the
+   Panorama animation restarts even when the option count stays the same. */
+#sw_root.menu-refresh-a .menu-items {
+    animation-name: menu-items-in-a;
+    animation-duration: 0.16s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
+}
+
+#sw_root.menu-refresh-b .menu-items {
+    animation-name: menu-items-in-b;
+    animation-duration: 0.16s;
+    animation-timing-function: ease-out;
+    animation-iteration-count: 1;
+}
+
+@keyframes 'menu-sidebar-in' {
+    0% {
+        opacity: 0;
+        transform: translate3d(-28px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
+}
+
+@keyframes 'menu-items-in-a' {
+    0% {
+        opacity: 0.25;
+        transform: translate3d(10px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
+}
+
+@keyframes 'menu-items-in-b' {
+    0% {
+        opacity: 0.25;
+        transform: translate3d(10px, 0px, 0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0px, 0px, 0px);
+    }
 }

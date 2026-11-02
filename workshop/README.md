@@ -13,7 +13,9 @@ workshop/
 The layout provides five clickable item slots, optional item thumbnails, a title,
 page indicator, comment line, previous/next page buttons, a Back button and a
 Close button. It renders as a full-height left sidebar so the game view stays
-readable. Colors and visibility are controlled by CSS classes.
+readable. Colors, visibility and transitions are controlled by CSS classes.
+The server alternates `menu-refresh-a` / `menu-refresh-b` on `sw_root` after
+submenu and page changes so the layout can replay its content animation.
 
 ## 1. Create the addon
 
@@ -107,7 +109,9 @@ Reload `sws2-cs2menus` or restart the server, then run:
 - `Backend` is `hudlayout` (or `auto` after the addon is mounted).
 - `HudLayoutPath` matches the layout file.
 - `!menudemo` opens the HUD.
-- Mouse click selects items.
+- The sidebar slides in when the menu opens.
+- Submenu and page changes replay the option-list animation.
+- Mouse click selects items and shows the press effect.
 - `<` and `>` change pages.
 - `Back` returns to the parent menu.
 - `X` closes the menu and releases the cursor.

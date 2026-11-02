@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 ### Changed
 
 - Restyle the HUD layout as a full-height left sidebar with compact option rows, a bottom navigation bar and clearer hover states.
+- Add sidebar entry, submenu/page transition and button press animations driven by alternating HUD classes.
 
 ### Added
 

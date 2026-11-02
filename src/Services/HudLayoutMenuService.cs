@@ -33,7 +33,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
     ];
 
-    private static readonly string[] ResetClassNames = ["hidden", "disabled", "has-image"];
+    private static readonly string[] ResetClassNames =
+        ["hidden", "disabled", "has-image", "menu-refresh-a", "menu-refresh-b"];
 
     private sealed class MenuFrame
     {
@@ -57,6 +58,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         public bool InputCapture { get; set; }
 
         public bool Busy { get; set; }
+
+        public bool AnimationToggle { get; set; }
     }
 
     private readonly ISwiftlyCore _core;
@@ -431,8 +434,28 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetClassLocked(session, "sw_back", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
         SetClassLocked(session, "sw_close", "hidden", !menu.ShowClose);
         SetClassLocked(session, "sw_root", "hidden", false);
+        RestartMenuAnimationLocked(session);
 
         SetInputCaptureLocked(session, true);
+    }
+
+    private void RestartMenuAnimationLocked(PlayerSession session)
+    {
+        // Alternating class names retrigger the CSS keyframes after every page or submenu
+        // change. The Panorama layout owns the actual animation.
+        var nextIsFirst = !session.AnimationToggle;
+        session.AnimationToggle = nextIsFirst;
+
+        SetClassLocked(
+            session,
+            "sw_root",
+            nextIsFirst ? "menu-refresh-b" : "menu-refresh-a",
+            false);
+        SetClassLocked(
+            session,
+            "sw_root",
+            nextIsFirst ? "menu-refresh-a" : "menu-refresh-b",
+            true);
     }
 
     private void OnCustomHudClicked(IOnCustomHudClickedEvent @event)
