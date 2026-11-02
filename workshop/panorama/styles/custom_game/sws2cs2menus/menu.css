@@ -184,8 +184,19 @@
 }
 
 #sw_back {
-    width: 64px;
+    width: 96px;
+    min-width: 96px;
+    padding: 0px 12px;
+}
+
+#sw_back_text {
+    width: 100%;
     min-width: 64px;
+    white-space: nowrap;
+    text-overflow: noclip;
+    text-align: center;
+    vertical-align: center;
+    font-size: 13px;
 }
 
 .nav-btn:hover {

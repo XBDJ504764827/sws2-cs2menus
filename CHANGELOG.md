@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Keep the HUD layout Back label on one line by widening the button and relabelling it without wrapping.
+
 ### Added
 
 - Minimal `custom_hud_layout` menu backend with mouse-clickable Panorama layout.
