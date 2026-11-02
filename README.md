@@ -89,7 +89,6 @@ template. The file is hot-reloaded.
       "Backend": "auto",
       "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml",
       "HudLayoutWorkshopId": "",
-      "HudBackLabel": "←",
       "Colors": {
         "Title": "#FFD700",
         "Comment": "#AAAAAA",
@@ -120,11 +119,6 @@ MultiAddonManager procedure.
 
 `HudLayoutWorkshopId` is informational for now; add the published ID to
 MultiAddonManager's `mm_extra_addons`.
-
-`HudBackLabel` controls the HUD layout Back button. The default `←` fits the
-narrow button used by older Workshop layouts. After publishing the updated
-`menu.css`, set it to `返回`, `Back`, or leave it empty to use the localized
-translation.
 
 ## Using the menu service
 

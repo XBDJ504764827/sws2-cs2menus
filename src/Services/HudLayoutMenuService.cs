@@ -402,10 +402,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetTextLocked(session, "sw_page", $"{frame.Page + 1}/{pageCount}");
         SetTextLocked(session, "sw_comment_text", menu.Comment ?? string.Empty);
         SetTextLocked(session, "sw_footer", localizer["cs2menus.hud.footer"]);
-        var backLabel = string.IsNullOrWhiteSpace(_config.Menu.HudBackLabel)
-            ? localizer["cs2menus.hud.back"]
-            : _config.Menu.HudBackLabel;
-        SetTextLocked(session, "sw_back_text", KeepOnOneLine(backLabel));
+        SetTextLocked(session, "sw_back_text", KeepOnOneLine(localizer["cs2menus.hud.back"]));
         SetClassLocked(session, "sw_comment", "hidden", string.IsNullOrWhiteSpace(menu.Comment));
 
         for (var i = 0; i < ItemSlots; i++)

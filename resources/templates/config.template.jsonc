@@ -14,9 +14,6 @@
       "Backend": "auto",
       "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml",
       "HudLayoutWorkshopId": "",
-      // HUD back button label. Keep it short for older Workshop layouts with a narrow button.
-      // Set to "" to use the localized Back text.
-      "HudBackLabel": "←",
       "Colors": {
         "Title": "#FFD700",
         "Comment": "#AAAAAA",
