@@ -12,7 +12,8 @@ workshop/
 
 The layout provides five clickable item slots, optional item thumbnails, a title,
 page indicator, comment line, previous/next page buttons, a Back button and a
-Close button. Colors and visibility are controlled by CSS classes.
+Close button. It renders as a full-height left sidebar so the game view stays
+readable. Colors and visibility are controlled by CSS classes.
 
 ## 1. Create the addon
 

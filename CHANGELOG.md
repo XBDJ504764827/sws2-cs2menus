@@ -8,6 +8,10 @@ All notable changes to this project are documented in this file.
 
 - Keep the HUD layout Back label on one line by widening the button, setting an explicit label width and inserting word joiners between characters so older Workshop layouts cannot wrap it vertically.
 
+### Changed
+
+- Restyle the HUD layout as a full-height left sidebar with compact option rows, a bottom navigation bar and clearer hover states.
+
 ### Added
 
 - Minimal `custom_hud_layout` menu backend with mouse-clickable Panorama layout.
