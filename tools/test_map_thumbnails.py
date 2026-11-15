@@ -18,7 +18,7 @@ class ThumbnailChecks(unittest.TestCase):
                 // These values deliberately include comment-like strings.
                 "sws2-cs2mapmanager": {"Maps":{"Available":{
                     "local": "local:DE_DUST2",
-                    "workshop": {"WorkshopId":"00123", "CKZ":2, "VNL":7},
+                    "workshop": {"WorkshopId":"00123", "CKZ":{"NUB":2,"PRO":3}, "VNL":{"NUB":7,"PRO":8}},
                     "name // /* comma,}": "456", /* comment */
                 }}}
             }''')

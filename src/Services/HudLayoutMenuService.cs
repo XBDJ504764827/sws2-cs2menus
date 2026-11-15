@@ -513,12 +513,18 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             if (mapPicker)
             {
                 SetTextLocked(session, $"{panel}_no_image", localizer["cs2menus.hud.no_image"]);
-                SetTextLocked(session, $"{panel}_ckz_tier", mapAppearance?.CkzTier is > 0
-                    ? localizer["cs2menus.hud.map_tier", "CKZ", mapAppearance.CkzTier.Value]
-                    : localizer["cs2menus.hud.tier_unknown", "CKZ"]);
-                SetTextLocked(session, $"{panel}_vnl_tier", mapAppearance?.VnlTier is > 0
-                    ? localizer["cs2menus.hud.map_tier", "VNL", mapAppearance.VnlTier.Value]
-                    : localizer["cs2menus.hud.tier_unknown", "VNL"]);
+                foreach (var (suffix, label, tier) in new[]
+                {
+                    ("ckz_nub_tier", "CKZ NUB", mapAppearance?.CkzNubTier),
+                    ("ckz_pro_tier", "CKZ PRO", mapAppearance?.CkzProTier),
+                    ("vnl_nub_tier", "VNL NUB", mapAppearance?.VnlNubTier),
+                    ("vnl_pro_tier", "VNL PRO", mapAppearance?.VnlProTier)
+                })
+                {
+                    SetTextLocked(session, $"{panel}_{suffix}", tier is > 0
+                        ? localizer["cs2menus.hud.map_tier", label, tier.Value]
+                        : localizer["cs2menus.hud.tier_unknown", label]);
+                }
             }
             var appearance = option.Tag as MenuOptionAppearance;
             var comment = option.Comment ?? _config.Menu.DefaultComment;

@@ -14,7 +14,7 @@ workshop/
 The layout provides a centered 980 × 660 text-only window on CS2's 1080-high
 HUD canvas. A 214-pixel category column stays on the left while the right pane
 shows the active list, player action menu or confirmation. Navigation and paging
-stay at the bottom of the right pane. The administrator panel has no images or icons. A separate map picker layout can show optional map screenshots and independent CKZ/VNL ratings.
+stay at the bottom of the right pane. The administrator panel has no images or icons. A separate map picker layout can show optional map screenshots and independent CKZ NUB/PRO and VNL NUB/PRO ratings.
 
 The `!o` menu in cs2kz-metamod was used as an interaction reference; this addon
 has its own XML, CSS and server contract. Keep `sw_category0`–`sw_category4` and
@@ -159,8 +159,8 @@ mounted. The `auto` check runs when `sws2-cs2menus` loads.
 ## Map reservation pictures
 
 `!yd` in sws2-cs2rockthevote uses the MapPicker layout: four map rows per page,
-map names, separate CKZ and VNL badges, local screenshot backgrounds and text
-selection buttons. Unrated modes and maps without screenshots each have an
+map names, separate CKZ NUB/PRO and VNL NUB/PRO badges, local screenshot backgrounds and text
+selection buttons. Unrated categories and maps without screenshots each have an
 explicit placeholder. All panels remain Panel/Label/Button; no Image element or
 client script is required. The admin sidebar never displays these pictures.
 
@@ -175,7 +175,7 @@ python3 tools/build_map_thumbnails.py --config /path/to/mapmanager/config.jsonc
 This reads both compact and extended maps and legacy arrays, downloads Steam
 preview images, copies PNG/JPEG files into the addon and writes
 `map_thumbnails.css`. Classes are derived from the stable map ID, so renaming a
-map or changing CKZ/VNL ratings does not require regenerating pictures. Existing
+map or changing any mode/run ratings does not require regenerating pictures. Existing
 images are cached; delete a cached image first to download a newer screenshot.
 Steam failures keep cached pictures and leave other maps with a placeholder.
 
@@ -202,3 +202,5 @@ HUD cannot assign arbitrary background URLs through its server API.
 Browser preview: open `preview/index.html?menu=reservation`. Its ratings are
 illustrative sample data, not the actual ratings of those maps. Validate resource
 compilation, fonts, input capture and screenshots in a real CS2 client separately.
+
+NUB denotes checkpoints (存点); PRO denotes no checkpoints (裸跳). The four badges form a two-by-two grid: CKZ on the first row, VNL on the second, NUB on the left and PRO on the right. Recompile the updated XML/CSS when upgrading this layout.

@@ -41,7 +41,7 @@
   "cs2menus.hud.close": "關閉",
   "cs2menus.hud.previous": "上一頁",
   "cs2menus.hud.next": "下一頁",
-  "cs2menus.hud.maps": "可預定地圖",
+  "cs2menus.hud.maps": "可預定地圖 · NUB 存點 / PRO 裸跳",
   "cs2menus.hud.no_image": "暫無圖片",
   "cs2menus.hud.map_tier": "{0} 等級 {1}",
   "cs2menus.hud.tier_unknown": "{0} 未定級"

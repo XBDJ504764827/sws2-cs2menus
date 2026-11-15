@@ -55,8 +55,14 @@
                   <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" hittest="false" />
                 </Panel>
                 <Panel id="sw_item0_tiers" class="map-tiers hidden" hittest="false">
-                  <Label id="sw_item0_ckz_tier" class="map-tier" text="{s:sw_item0_ckz_tier}" hittest="false" />
-                  <Label id="sw_item0_vnl_tier" class="map-tier" text="{s:sw_item0_vnl_tier}" hittest="false" />
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item0_ckz_nub_tier" class="map-tier" text="{s:sw_item0_ckz_nub_tier}" hittest="false" />
+                    <Label id="sw_item0_ckz_pro_tier" class="map-tier" text="{s:sw_item0_ckz_pro_tier}" hittest="false" />
+                  </Panel>
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item0_vnl_nub_tier" class="map-tier" text="{s:sw_item0_vnl_nub_tier}" hittest="false" />
+                    <Label id="sw_item0_vnl_pro_tier" class="map-tier" text="{s:sw_item0_vnl_pro_tier}" hittest="false" />
+                  </Panel>
                 </Panel>
                 <Label id="sw_item0_action" class="item-action" text="{s:sw_item0_action}" hittest="false" />
               </Button>
@@ -70,8 +76,14 @@
                   <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" hittest="false" />
                 </Panel>
                 <Panel id="sw_item1_tiers" class="map-tiers hidden" hittest="false">
-                  <Label id="sw_item1_ckz_tier" class="map-tier" text="{s:sw_item1_ckz_tier}" hittest="false" />
-                  <Label id="sw_item1_vnl_tier" class="map-tier" text="{s:sw_item1_vnl_tier}" hittest="false" />
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item1_ckz_nub_tier" class="map-tier" text="{s:sw_item1_ckz_nub_tier}" hittest="false" />
+                    <Label id="sw_item1_ckz_pro_tier" class="map-tier" text="{s:sw_item1_ckz_pro_tier}" hittest="false" />
+                  </Panel>
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item1_vnl_nub_tier" class="map-tier" text="{s:sw_item1_vnl_nub_tier}" hittest="false" />
+                    <Label id="sw_item1_vnl_pro_tier" class="map-tier" text="{s:sw_item1_vnl_pro_tier}" hittest="false" />
+                  </Panel>
                 </Panel>
                 <Label id="sw_item1_action" class="item-action" text="{s:sw_item1_action}" hittest="false" />
               </Button>
@@ -85,8 +97,14 @@
                   <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" hittest="false" />
                 </Panel>
                 <Panel id="sw_item2_tiers" class="map-tiers hidden" hittest="false">
-                  <Label id="sw_item2_ckz_tier" class="map-tier" text="{s:sw_item2_ckz_tier}" hittest="false" />
-                  <Label id="sw_item2_vnl_tier" class="map-tier" text="{s:sw_item2_vnl_tier}" hittest="false" />
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item2_ckz_nub_tier" class="map-tier" text="{s:sw_item2_ckz_nub_tier}" hittest="false" />
+                    <Label id="sw_item2_ckz_pro_tier" class="map-tier" text="{s:sw_item2_ckz_pro_tier}" hittest="false" />
+                  </Panel>
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item2_vnl_nub_tier" class="map-tier" text="{s:sw_item2_vnl_nub_tier}" hittest="false" />
+                    <Label id="sw_item2_vnl_pro_tier" class="map-tier" text="{s:sw_item2_vnl_pro_tier}" hittest="false" />
+                  </Panel>
                 </Panel>
                 <Label id="sw_item2_action" class="item-action" text="{s:sw_item2_action}" hittest="false" />
               </Button>
@@ -100,8 +118,14 @@
                   <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" hittest="false" />
                 </Panel>
                 <Panel id="sw_item3_tiers" class="map-tiers hidden" hittest="false">
-                  <Label id="sw_item3_ckz_tier" class="map-tier" text="{s:sw_item3_ckz_tier}" hittest="false" />
-                  <Label id="sw_item3_vnl_tier" class="map-tier" text="{s:sw_item3_vnl_tier}" hittest="false" />
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item3_ckz_nub_tier" class="map-tier" text="{s:sw_item3_ckz_nub_tier}" hittest="false" />
+                    <Label id="sw_item3_ckz_pro_tier" class="map-tier" text="{s:sw_item3_ckz_pro_tier}" hittest="false" />
+                  </Panel>
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item3_vnl_nub_tier" class="map-tier" text="{s:sw_item3_vnl_nub_tier}" hittest="false" />
+                    <Label id="sw_item3_vnl_pro_tier" class="map-tier" text="{s:sw_item3_vnl_pro_tier}" hittest="false" />
+                  </Panel>
                 </Panel>
                 <Label id="sw_item3_action" class="item-action" text="{s:sw_item3_action}" hittest="false" />
               </Button>
@@ -115,8 +139,14 @@
                   <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" hittest="false" />
                 </Panel>
                 <Panel id="sw_item4_tiers" class="map-tiers hidden" hittest="false">
-                  <Label id="sw_item4_ckz_tier" class="map-tier" text="{s:sw_item4_ckz_tier}" hittest="false" />
-                  <Label id="sw_item4_vnl_tier" class="map-tier" text="{s:sw_item4_vnl_tier}" hittest="false" />
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item4_ckz_nub_tier" class="map-tier" text="{s:sw_item4_ckz_nub_tier}" hittest="false" />
+                    <Label id="sw_item4_ckz_pro_tier" class="map-tier" text="{s:sw_item4_ckz_pro_tier}" hittest="false" />
+                  </Panel>
+                  <Panel class="map-tier-pair" hittest="false">
+                    <Label id="sw_item4_vnl_nub_tier" class="map-tier" text="{s:sw_item4_vnl_nub_tier}" hittest="false" />
+                    <Label id="sw_item4_vnl_pro_tier" class="map-tier" text="{s:sw_item4_vnl_pro_tier}" hittest="false" />
+                  </Panel>
                 </Panel>
                 <Label id="sw_item4_action" class="item-action" text="{s:sw_item4_action}" hittest="false" />
               </Button>

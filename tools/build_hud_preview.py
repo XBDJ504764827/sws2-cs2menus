@@ -78,10 +78,10 @@ function toast(message) { text('toast', '预览：'+message); $('toast').style.d
 function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else mapList(); }
 function home() { if(reservationMode) { stack.length=0; reservation(); } else selectCategory(0); }
 function reservation() {
- const ckz=[2,3,null,5,1,6,4,7,8], vnl=[4,null,2,6,3,7,5,8,9]; // Illustrative preview data, not real map ratings.
+ const ckzNub=[2,3,null,5,1,6,4,7,8], ckzPro=[3,null,4,6,2,7,5,8,9], vnlNub=[4,null,2,6,3,7,5,8,9], vnlPro=[5,6,null,7,4,8,6,9,10]; // Illustrative preview data, not real map ratings.
  const items=maps.map(([name,id],i)=>({...item(name,'作者信息不可用 · '+name,()=>{
   toast('已预定 '+name+'，使用 !rtv 同意换图'); $('sw_root').classList.add('hidden'); $('reopen').style.display='block';
- }), map:true, ckz:ckz[i], vnl:vnl[i], workshopId:id}));
+ }), map:true, ckzNub:ckzNub[i], ckzPro:ckzPro[i], vnlNub:vnlNub[i], vnlPro:vnlPro[i], workshopId:id}));
  push('预定下一张地图','点击地图即可预定。预定后，玩家使用 !rtv 同意换图。',items,'map-picker');
 }
 function players() { push('玩家操作','选择在线玩家，查看可用操作。受保护的玩家不可选择。',people.map((name,i)=>item(name+' ['+(i%2?'CT':'SPEC')+']',i===0?'目标受免疫等级保护。':'#'+i+'  ·  7656119800000000'+i,()=>actions(name),false,i===0))); }
@@ -91,7 +91,7 @@ function actions(name) { push('操作: '+name,'当前目标 · '+name,[
  ...['处决','拍击（10 伤害）','重生','冻结（5 秒）','禁麦（默认时长）','禁言（默认时长）','沉默（默认时长）'].map(action=>item(action,'',()=>toast('已执行'+action+' · '+name))) ]); }
 function durations(name) { push('封禁: '+name,'选择封禁时长，下一步核对并确认。',['30 秒','60 秒','1 小时','1 天','3 天','7 天','30 天','永久'].map(duration=>item(duration,'',()=>confirm('封禁 '+name+'?','即将封禁 '+name+'，时长：'+duration+'。确认后将断开连接并限制加入服务器。','确认封禁',()=>{toast('已封禁 '+name+' · '+duration);home();},true)))); }
 function mapList() {
- const items=maps.map(([name,id])=>item(name,'CKZ 未定级 | VNL 未定级 · Workshop ID: '+id,()=>confirm(
+ const items=maps.map(([name,id])=>item(name,'CKZ NUB ? / PRO ? | VNL NUB ? / PRO ? · Workshop ID: '+id,()=>confirm(
   '更换地图至 '+name+'?',
   '将切换至 '+name+'（'+id+'）。确认后开始 3 秒倒计时；未安装的工坊地图会先下载。',
   '确认更换地图',
@@ -110,13 +110,13 @@ function render() {
   const el=$('sw_category'+i); el.className='category'+(i>1?' hidden':'')+(i===activeCategory?' selected':'');
   if(i<2) { text('sw_category'+i+'_text',i===0?'玩家操作':'地图管理'); el.onclick=()=>selectCategory(i); }
  }
- text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':reservationMode?'可预定地图':'可用操作');
+ text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':reservationMode?'可预定地图 · NUB 存点 / PRO 裸跳':'可用操作');
  text('sw_page',(frame.page+1)+' / '+pages); text('sw_footer','点击选项继续操作'); text('sw_home_text','首页'); text('sw_back_text','返回'); text('sw_close_text','关闭'); text('sw_prev_text','上一页'); text('sw_next_text','下一页');
  for(let i=0;i<5;i++) {
   const row=rows[i], el=$('sw_item'+i); el.className='item'+(!row?' hidden':'')+(row?.danger?' destructive':'')+(row?.disabled?' disabled':'')+(row?.map?' map-row':''); el.disabled=!row||!!row.disabled;
   $('sw_item'+i+'_thumbnail').classList.toggle('hidden',!row?.map); $('sw_item'+i+'_tiers').classList.toggle('hidden',!row?.map);
   $('sw_item'+i+'_artwork').className='map-artwork '+(thumbnailClasses[row?.workshopId]||'');
-  text('sw_item'+i+'_ckz_tier',row?.ckz?'CKZ 等级 '+row.ckz:'CKZ 等级未知'); text('sw_item'+i+'_vnl_tier',row?.vnl?'VNL 等级 '+row.vnl:'VNL 等级未知'); text('sw_item'+i+'_no_image','暂无图片');
+  for (const [suffix,key,label] of [['ckz_nub_tier','ckzNub','CKZ NUB'],['ckz_pro_tier','ckzPro','CKZ PRO'],['vnl_nub_tier','vnlNub','VNL NUB'],['vnl_pro_tier','vnlPro','VNL PRO']]) { text('sw_item'+i+'_'+suffix,row?.[key]?label+' 等级 '+row[key]:label+' 等级未知'); } text('sw_item'+i+'_no_image','暂无图片');
   if(!row) continue;
   text('sw_item'+i+'_text',row.name); text('sw_item'+i+'_comment',row.comment); text('sw_item'+i+'_action',row.disabled?'不可用':'选择');
   $('sw_item'+i+'_comment').classList.toggle('hidden',!row.comment); el.onclick=row.action;

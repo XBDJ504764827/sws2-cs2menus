@@ -301,9 +301,9 @@ map unloads, or the plugin is unloaded.
 
 
 `Layout(MenuLayout.MapPicker)` displays up to four map rows per page. Supply
-`.Tag(new MapMenuOptionAppearance(map.CkzTier, map.VnlTier, map.Id))` for independent
-CKZ/VNL badges and a packaged thumbnail keyed by the stable map ID. Missing ratings
-show an unknown label for that mode, and missing pictures show a placeholder.
+`.Tag(new MapMenuOptionAppearance(map.CkzNubTier, map.CkzProTier, map.VnlNubTier, map.VnlProTier, map.Id))` for independent
+CKZ NUB/PRO and VNL NUB/PRO badges and a packaged thumbnail keyed by the stable map ID. Missing ratings
+show an unknown label for that category, and missing pictures show a placeholder.
 Only this layout displays map screenshots; the administrator sidebar stays text-only.
 Generate screenshots with `tools/build_map_thumbnails.py` before compiling the addon;
 see [map picture instructions](workshop/README.md#map-reservation-pictures).

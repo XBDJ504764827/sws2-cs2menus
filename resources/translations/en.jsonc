@@ -41,7 +41,7 @@
   "cs2menus.hud.close": "Close",
   "cs2menus.hud.previous": "Previous",
   "cs2menus.hud.next": "Next",
-  "cs2menus.hud.maps": "AVAILABLE MAPS",
+  "cs2menus.hud.maps": "AVAILABLE MAPS · NUB: checkpoints / PRO: no checkpoints",
   "cs2menus.hud.no_image": "No preview",
   "cs2menus.hud.map_tier": "{0} Tier {1}",
   "cs2menus.hud.tier_unknown": "{0} Unrated"

@@ -41,7 +41,7 @@
   "cs2menus.hud.close": "关闭",
   "cs2menus.hud.previous": "上一页",
   "cs2menus.hud.next": "下一页",
-  "cs2menus.hud.maps": "可预定地图",
+  "cs2menus.hud.maps": "可预定地图 · NUB 存点 / PRO 裸跳",
   "cs2menus.hud.no_image": "暂无图片",
   "cs2menus.hud.map_tier": "{0} 等级 {1}",
   "cs2menus.hud.tier_unknown": "{0} 等级未知"

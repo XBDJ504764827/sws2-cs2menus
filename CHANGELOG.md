@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### NUB / PRO ratings
+
+- Display four independent CKZ/VNL NUB/PRO badges in a two-by-two grid, with a localized checkpoints/no-checkpoints legend and separate unknown values.
+
 ### Map reservations
 
 - Add a MapPicker layout with four rows per page, independent CKZ/VNL badges and optional packaged map screenshots, leaving the administrator sidebar text-only.
