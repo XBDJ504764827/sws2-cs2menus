@@ -7,15 +7,19 @@ menu backend.
 workshop/
 └── panorama/
     ├── layout/custom_game/sws2cs2menus/menu.xml
-    └── styles/custom_game/sws2cs2menus/menu.css
+    ├── styles/custom_game/sws2cs2menus/menu.css
+    └── images/custom_game/sws2cs2menus/{players,maps,warning}.svg
 ```
 
-The layout provides five clickable item slots, optional item thumbnails, a title,
-page indicator, comment line, previous/next page buttons, a Back button and a
-Close button. It renders as a full-height left sidebar so the game view stays
-readable. Colors, visibility and transitions are controlled by CSS classes.
-The server alternates `menu-refresh-a` / `menu-refresh-b` on `sw_root` after
-submenu and page changes so the layout can replay its content animation.
+The layout provides a centered 940 × 716 panel on CS2's 1080-high HUD canvas,
+with a brand header, administrator name, breadcrumb trail, option count, five list
+slots and a fixed footer. Dashboard menus show two feature cards; confirmations
+use an amber accent and red destructive actions. Local SVG icons need no external
+image service. The server alternates refresh classes for content transitions.
+
+Copy **all** of `panorama/`, including `images/custom_game/sws2cs2menus/`, and
+republish the existing addon when upgrading. Updating only the plugin DLL does
+not update the client layout. A new client download / reconnect may be needed.
 
 ## 1. Create the addon
 
@@ -35,7 +39,8 @@ Copy the `panorama` folder from this repository into the addon root:
 Counter-Strike 2/content/csgo_addons/sws2cs2menus/
 └── panorama/
     ├── layout/custom_game/sws2cs2menus/menu.xml
-    └── styles/custom_game/sws2cs2menus/menu.css
+    ├── styles/custom_game/sws2cs2menus/menu.css
+    └── images/custom_game/sws2cs2menus/{players,maps,warning}.svg
 ```
 
 Keep the directory names exactly as shown. The server writes panel IDs such as
@@ -88,7 +93,7 @@ Set:
 ```jsonc
 "Menu": {
   "Backend": "hudlayout",
-  "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml"
+  "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c"
 }
 ```
 
@@ -109,13 +114,16 @@ Reload `sws2-cs2menus` or restart the server, then run:
 - `Backend` is `hudlayout` (or `auto` after the addon is mounted).
 - `HudLayoutPath` matches the layout file.
 - `!menudemo` opens the HUD.
-- The sidebar slides in when the menu opens.
+- The centered panel appears with a short fade/slide animation.
+- `!admin` shows Player actions and Map management cards.
+- Kicks / bans show the target and duration before confirmation.
+- Home returns to the root; Back preserves the previous page.
 - Submenu and page changes replay the option-list animation.
 - Mouse click selects items and shows the press effect.
 - `<` and `>` change pages.
 - `Back` returns to the parent menu.
 - `X` closes the menu and releases the cursor.
-- Map menus can show Steam Workshop preview images beside map names and authors.
+- Map menus show local map icons and the configured Workshop IDs.
 
 ## Troubleshooting
 
@@ -132,8 +140,10 @@ input capture. Disable `mm-cs2menus` / `mm-cs2admin` during the first test.
 
 ### Menu is offset or clipped
 
-Adjust `.menu-box` and `.item` sizes in `menu.css`. Text width cannot be measured
-by the server, so keep labels reasonably short.
+The design uses a 1080-high HUD canvas, scaled by CS2. Check 16:9, 4:3 and
+ultrawide clients. Long titles, player names and map names are truncated rather
+than expanding rows; test Chinese fonts and long Workshop names in Workshop Tools.
+The browser preview is an approximation and cannot validate Panorama compilation.
 
 ### Layout not found with `auto`
 

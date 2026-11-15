@@ -13,9 +13,10 @@
 Whitelist and RockTheVote consume the same menu service instead of writing
 their own pagination, navigation, permission and cleanup code.
 
-The plugin renders through SwiftlyS2's component menu framework (`Core.Menu`),
-which is the custom-HUD based menu system. It does not use chat menus or the
-deprecated classic `Core.MenusAPI`.
+The primary renderer is SwiftlyS2 Custom HUD (`custom_hud_layout`) with a
+companion Panorama addon. It renders a centered dark panel with mint accents,
+local vector icons, breadcrumbs and fixed navigation. The optional center-HTML
+fallback uses `Core.Menu`.
 
 ## Features
 
@@ -32,6 +33,25 @@ deprecated classic `Core.MenusAPI`.
 - Hot-reloadable `config.jsonc`
 - A built-in `!menudemo` menu to verify pagination, submenus, permissions and cleanup
 - Translations: English, 简体中文, 繁體中文
+
+## New administrator HUD
+
+`!admin` in `sws2-cs2admin` opens two feature cards: **Player actions** and
+**Map management**. Players and maps are read when the module is entered.
+Kicks and bans use a separate confirmation screen; map changes use mapmanager's
+existing countdown, download and change flow. The HUD only captures input while
+open, and each administrator receives an independent panel.
+
+Open [`preview/index.html`](preview/index.html) in a browser for an interactive
+preview with sample players and maps. It is generated from the real Panorama XML
+and CSS using `python3 tools/build_hud_preview.py`; the browser adapter approximates
+Panorama and does not connect to a server. Workshop Tools and a CS2 client are
+required to validate native rendering, Chinese fonts, mouse capture and game actions.
+
+Update **both** the menus/admin plugin packages and the Workshop addon. An old
+addon cannot display the new panel IDs or icons. Follow [`workshop/README.md`](workshop/README.md).
+The .NET archive also includes the addon source under `workshop-source/` for compilation;
+copying source files alone does not install a compiled client addon.
 
 ## Requirements
 
@@ -87,13 +107,13 @@ template. The file is hot-reloaded.
       "CloseOnSelect": true,
       "DefaultComment": "",
       "Backend": "auto",
-      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml",
+      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
       "HudLayoutWorkshopId": "",
       "Colors": {
-        "Title": "#FFD700",
-        "Comment": "#AAAAAA",
-        "Focused": "#FFD700",
-        "Disabled": "#808080"
+        "Title": "#70E0C4",
+        "Comment": "#91A8B5",
+        "Focused": "#70E0C4",
+        "Disabled": "#617786"
       }
     },
     "Demo": {
@@ -242,6 +262,12 @@ A menu definition is immutable and can be reused for multiple players. Every
 | `MenuCloseReason` | `Closed`, `Back`, `Selected`, `Replaced`, `Disconnected`, `MapUnload`, `PluginUnload`, `PermissionDenied` |
 
 Useful builder methods:
+
+- `Layout(MenuLayout.Dashboard)` displays two feature cards per page.
+- `Layout(MenuLayout.Confirmation)` displays an amber confirmation screen.
+- The default `MenuLayout.List` preserves existing consumers such as RTV.
+- `Tag(new MenuOptionAppearance("!", Destructive: true))` marks a destructive action.
+  `"P"` and `"M"` select the built-in player and map icons; other glyphs render as text.
 
 - `PageSize(n)` sets the page size (1-5).
 - `Permission("...")` gates the menu or an option.

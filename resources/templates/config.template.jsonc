@@ -12,13 +12,13 @@
       // auto = custom HUD when the Panorama addon is mounted, otherwise center HTML.
       // hudlayout = force custom HUD, classic = force center HTML.
       "Backend": "auto",
-      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.xml",
+      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
       "HudLayoutWorkshopId": "",
       "Colors": {
-        "Title": "#FFD700",
-        "Comment": "#AAAAAA",
-        "Focused": "#FFD700",
-        "Disabled": "#808080"
+        "Title": "#70E0C4",
+        "Comment": "#91A8B5",
+        "Focused": "#70E0C4",
+        "Disabled": "#617786"
       }
     },
     "Demo": {

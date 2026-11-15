@@ -26,6 +26,14 @@
   "cs2menus.demo.maps.title": "Demo Maps",
   "cs2menus.demo.maps.comment": "Demo only. Selecting a map does not change the map.",
   "cs2menus.demo.maps.selected": "Demo: selected map {0}, map not changed.",
-  "cs2menus.hud.footer": "Click an item",
-  "cs2menus.hud.back": "Back"
+  "cs2menus.hud.footer": "Select an item to continue",
+  "cs2menus.hud.back": "Back",
+  "cs2menus.hud.brand": "SERVER CONTROL",
+  "cs2menus.hud.count": "{0} options",
+  "cs2menus.hud.section": "AVAILABLE ACTIONS",
+  "cs2menus.hud.confirmation": "REVIEW & CONFIRM",
+  "cs2menus.hud.home": "Home",
+  "cs2menus.hud.open": "Open module",
+  "cs2menus.hud.select": "Select",
+  "cs2menus.hud.unavailable": "Unavailable"
 }

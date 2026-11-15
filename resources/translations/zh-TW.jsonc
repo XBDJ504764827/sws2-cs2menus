@@ -26,6 +26,14 @@
   "cs2menus.demo.maps.title": "示範地圖",
   "cs2menus.demo.maps.comment": "僅供示範，選擇地圖不會更換地圖。",
   "cs2menus.demo.maps.selected": "示範：已選擇地圖 {0}，未更換地圖。",
-  "cs2menus.hud.footer": "點擊選項",
-  "cs2menus.hud.back": "返回"
+  "cs2menus.hud.footer": "點擊選項繼續操作",
+  "cs2menus.hud.back": "返回",
+  "cs2menus.hud.brand": "伺服器管理",
+  "cs2menus.hud.count": "{0} 個選項",
+  "cs2menus.hud.section": "可用操作",
+  "cs2menus.hud.confirmation": "請核對操作資訊",
+  "cs2menus.hud.home": "首頁",
+  "cs2menus.hud.open": "進入管理",
+  "cs2menus.hud.select": "選擇",
+  "cs2menus.hud.unavailable": "無法使用"
 }

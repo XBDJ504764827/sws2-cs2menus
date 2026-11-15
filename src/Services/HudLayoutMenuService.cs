@@ -27,20 +27,22 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         "sw_prev",
         "sw_next",
         "sw_back",
+        "sw_home",
         "sw_close",
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}"),
-        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_image"),
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
     ];
 
     private static readonly string[] ResetClassNames =
-        ["hidden", "disabled", "has-image", "menu-refresh-a", "menu-refresh-b"];
+        ["hidden", "disabled", "has-image", "destructive", "icon-players", "icon-maps", "icon-warning", "dashboard", "confirmation", "menu-refresh-a", "menu-refresh-b"];
 
     private sealed class MenuFrame
     {
         public required IMenuDefinition Menu { get; init; }
 
         public int Page { get; set; }
+
+        public IMenuOptionDefinition[] PageItems { get; set; } = [];
     }
 
     private sealed class PlayerSession
@@ -138,7 +140,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
     {
         lock (_sync)
         {
-            if (!TryGetSession(player, out var session) || session.Stack.Count <= 1)
+            if (!TryGetSession(player, out var session) || session.Stack.Count <= 1 || !session.Stack[^1].Menu.ShowBack)
             {
                 return false;
             }
@@ -325,7 +327,12 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         {
             var entity = _core.EntitySystem.CreateEntity<CCSCustomHudLayout>();
             using var keyValues = new CEntityKeyValues();
-            keyValues.SetString("layout", _config.Menu.HudLayoutPath);
+            var layoutPath = _config.Menu.HudLayoutPath;
+            if (layoutPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            {
+                layoutPath = layoutPath[..^4] + ".vxml_c";
+            }
+            keyValues.SetString("layout", layoutPath);
             keyValues.SetString("targetname", $"sws2_cs2menus_{session.Player.PlayerID}");
             entity.DispatchSpawn(keyValues);
 
@@ -391,7 +398,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             return;
         }
 
-        var pageSize = Math.Clamp(menu.PageSize, 1, ItemSlots);
+        var pageSize = GetPageSize(menu);
         var pageCount = Math.Max(1, (visibleOptions.Count + pageSize - 1) / pageSize);
         frame.Page = Math.Clamp(frame.Page, 0, pageCount - 1);
 
@@ -400,12 +407,22 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             .Skip(frame.Page * pageSize)
             .Take(pageSize)
             .ToArray();
+        frame.PageItems = pageItems;
 
+        SetClassLocked(session, "sw_root", "dashboard", menu.Layout == MenuLayout.Dashboard);
+        SetClassLocked(session, "sw_root", "confirmation", menu.Layout == MenuLayout.Confirmation);
+        SetTextLocked(session, "sw_brand", localizer["cs2menus.hud.brand"]);
+        SetTextLocked(session, "sw_operator", player.Name);
+        SetTextLocked(session, "sw_context", string.Join("  /  ", session.Stack.TakeLast(3).Select(item => item.Menu.Title)));
         SetTextLocked(session, "sw_title", menu.Title);
-        SetTextLocked(session, "sw_page", $"{frame.Page + 1}/{pageCount}");
+        SetTextLocked(session, "sw_page", $"{frame.Page + 1} / {pageCount}");
+        SetTextLocked(session, "sw_count", localizer["cs2menus.hud.count", visibleOptions.Count]);
+        SetTextLocked(session, "sw_section", localizer[menu.Layout == MenuLayout.Confirmation
+            ? "cs2menus.hud.confirmation" : "cs2menus.hud.section"]);
         SetTextLocked(session, "sw_comment_text", menu.Comment ?? string.Empty);
         SetTextLocked(session, "sw_footer", localizer["cs2menus.hud.footer"]);
         SetTextLocked(session, "sw_back_text", KeepOnOneLine(localizer["cs2menus.hud.back"]));
+        SetTextLocked(session, "sw_home_text", localizer["cs2menus.hud.home"]);
         SetClassLocked(session, "sw_comment", "hidden", string.IsNullOrWhiteSpace(menu.Comment));
 
         for (var i = 0; i < ItemSlots; i++)
@@ -418,20 +435,27 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             }
 
             var option = pageItems[i];
+            var appearance = option.Tag as MenuOptionAppearance;
             var comment = option.Comment ?? _config.Menu.DefaultComment;
+            SetTextLocked(session, $"{panel}_glyph", appearance?.Glyph ?? $"{frame.Page * pageSize + i + 1:00}");
             SetTextLocked(session, $"{panel}_text", option.Text);
             SetTextLocked(session, $"{panel}_comment", comment);
-            SetVariableLocked(session, $"{panel}_image", option.ImageUrl ?? string.Empty);
+            SetTextLocked(session, $"{panel}_action", localizer[!option.Enabled
+                ? "cs2menus.hud.unavailable"
+                : menu.Layout == MenuLayout.Dashboard ? "cs2menus.hud.open" : "cs2menus.hud.select"]);
             SetClassLocked(session, panel, "hidden", false);
             SetClassLocked(session, panel, "disabled", !option.Enabled);
-            SetClassLocked(session, panel, "has-image", !string.IsNullOrWhiteSpace(option.ImageUrl));
+            SetClassLocked(session, panel, "destructive", appearance?.Destructive == true);
+            SetClassLocked(session, panel, "icon-players", appearance?.Glyph == "P");
+            SetClassLocked(session, panel, "icon-maps", appearance?.Glyph == "M");
+            SetClassLocked(session, panel, "icon-warning", appearance?.Glyph == "!");
             SetClassLocked(session, $"{panel}_comment", "hidden", string.IsNullOrWhiteSpace(comment));
-            SetClassLocked(session, $"{panel}_image", "hidden", string.IsNullOrWhiteSpace(option.ImageUrl));
         }
 
-        SetClassLocked(session, "sw_prev", "hidden", frame.Page <= 0);
-        SetClassLocked(session, "sw_next", "hidden", frame.Page >= pageCount - 1);
+        SetClassLocked(session, "sw_prev", "disabled", frame.Page <= 0);
+        SetClassLocked(session, "sw_next", "disabled", frame.Page >= pageCount - 1);
         SetClassLocked(session, "sw_back", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
+        SetClassLocked(session, "sw_home", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
         SetClassLocked(session, "sw_close", "hidden", !menu.ShowClose);
         SetClassLocked(session, "sw_root", "hidden", false);
         RestartMenuAnimationLocked(session);
@@ -466,6 +490,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         var buttonId = @event.ButtonId;
         var close = false;
         var back = false;
+        var home = false;
         var pageDelta = 0;
 
         lock (_sync)
@@ -484,14 +509,23 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             }
 
             frame = session.Stack[^1];
+            if (!HasPermission(session.Player, frame.Menu.Permission))
+            {
+                CloseSessionLocked(session, MenuCloseReason.PermissionDenied);
+                return;
+            }
 
-            if (buttonId == "sw_close")
+            if (buttonId == "sw_close" && frame.Menu.ShowClose)
             {
                 close = true;
             }
-            else if (buttonId == "sw_back")
+            else if (buttonId == "sw_back" && frame.Menu.ShowBack)
             {
                 back = true;
+            }
+            else if (buttonId == "sw_home" && frame.Menu.ShowBack)
+            {
+                home = true;
             }
             else if (buttonId == "sw_prev")
             {
@@ -504,13 +538,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             else if (buttonId.StartsWith("sw_item", StringComparison.Ordinal)
                 && int.TryParse(buttonId.AsSpan("sw_item".Length), out var index))
             {
-                var pageSize = Math.Clamp(frame.Menu.PageSize, 1, ItemSlots);
                 var visibleOptions = GetVisibleOptions(session.Player, frame.Menu);
-                var itemIndex = frame.Page * pageSize + index;
-                if (itemIndex >= 0 && itemIndex < visibleOptions.Count)
+                if (index >= 0 && index < frame.PageItems.Length)
                 {
-                    var candidate = visibleOptions[itemIndex];
-                    if (candidate.Enabled)
+                    var candidate = frame.PageItems[index];
+                    if (candidate.Enabled && visibleOptions.Contains(candidate))
                     {
                         option = candidate;
                         session.Busy = true;
@@ -524,17 +556,20 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 return;
             }
 
-            if (back)
+            if (back || home)
             {
                 if (session.Stack.Count <= 1)
                 {
                     return;
                 }
 
-                var child = session.Stack[^1];
-                session.Stack.RemoveAt(session.Stack.Count - 1);
-                InvokeClosed(child.Menu, session.Player, MenuCloseReason.Back);
-                RaiseMenuClosed(session.Player, child.Menu, MenuCloseReason.Back);
+                do
+                {
+                    var child = session.Stack[^1];
+                    session.Stack.RemoveAt(session.Stack.Count - 1);
+                    InvokeClosed(child.Menu, session.Player, MenuCloseReason.Back);
+                    RaiseMenuClosed(session.Player, child.Menu, MenuCloseReason.Back);
+                } while (home && session.Stack.Count > 1);
                 RenderLocked(session);
                 RaiseMenuOpened(session.Player, session.Stack[^1].Menu);
                 return;
@@ -543,7 +578,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             if (pageDelta != 0)
             {
                 var visibleOptions = GetVisibleOptions(session.Player, frame.Menu);
-                var pageSize = Math.Clamp(frame.Menu.PageSize, 1, ItemSlots);
+                var pageSize = GetPageSize(frame.Menu);
                 var pageCount = Math.Max(1, (visibleOptions.Count + pageSize - 1) / pageSize);
                 var nextPage = Math.Clamp(frame.Page + pageDelta, 0, pageCount - 1);
                 if (nextPage != frame.Page)
@@ -568,7 +603,9 @@ internal sealed class HudLayoutMenuService : IMenuBackend
     {
         var player = session.Player;
 
-        if (!HasPermission(player, option.Permission))
+        if (!HasPermission(player, frame.Menu.Permission)
+            || !HasPermission(player, option.Permission)
+            || !HasPermission(player, option.SubMenu?.Permission))
         {
             session.Busy = false;
             return;
@@ -598,6 +635,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 frame.Menu.Id,
                 player.Name,
                 player.PlayerID);
+            lock (_sync)
+            {
+                session.Busy = false;
+            }
+            return;
         }
 
         lock (_sync)
@@ -858,6 +900,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             && player.IsValid
             && !player.IsFakeClient
             && (player.Controller?.IsValid ?? false);
+    }
+
+    private static int GetPageSize(IMenuDefinition menu)
+    {
+        return Math.Clamp(menu.PageSize, 1, menu.Layout == MenuLayout.Dashboard ? 2 : ItemSlots);
     }
 
     private bool HasPermission(IPlayer player, string? permission)

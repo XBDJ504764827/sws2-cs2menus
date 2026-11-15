@@ -10,6 +10,8 @@ internal sealed class MenuDefinition : IMenuDefinition
 
     public string? Comment { get; init; }
 
+    public MenuLayout Layout { get; init; }
+
     public int PageSize { get; init; }
 
     public string? Permission { get; init; }

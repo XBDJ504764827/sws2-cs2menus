@@ -45,6 +45,9 @@ public interface IMenuDefinition
     /// <summary>Optional comment shown under the title.</summary>
     string? Comment { get; }
 
+    /// <summary>Visual arrangement; existing consumers default to a list.</summary>
+    MenuLayout Layout => MenuLayout.List;
+
     /// <summary>Maximum number of options shown on one page (1-5).</summary>
     int PageSize { get; }
 

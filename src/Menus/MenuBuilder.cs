@@ -13,6 +13,7 @@ internal sealed class MenuBuilder : IMenuBuilder
     private string _id = $"menu-{Guid.NewGuid():N}"[..13];
     private readonly string _title;
     private string? _comment;
+    private MenuLayout _layout;
     private int _pageSize;
     private string? _permission;
     private bool _showBack;
@@ -58,6 +59,12 @@ internal sealed class MenuBuilder : IMenuBuilder
     public IMenuBuilder PageSize(int pageSize)
     {
         _pageSize = Math.Clamp(pageSize, 1, MenuServiceConstants.DefaultPageSize);
+        return this;
+    }
+
+    public IMenuBuilder Layout(MenuLayout layout)
+    {
+        _layout = layout;
         return this;
     }
 
@@ -141,6 +148,7 @@ internal sealed class MenuBuilder : IMenuBuilder
             Id = _id,
             Title = _title,
             Comment = _comment,
+            Layout = _layout,
             PageSize = Math.Clamp(_pageSize, 1, MenuServiceConstants.DefaultPageSize),
             Permission = _permission,
             ShowBack = _showBack,

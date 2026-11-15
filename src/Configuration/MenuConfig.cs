@@ -45,7 +45,7 @@ public sealed class MenuDefaults
     public string Backend { get; set; } = "auto";
 
     /// <summary>Panorama layout asset used by the hudlayout backend.</summary>
-    public string HudLayoutPath { get; set; } = "panorama/layout/custom_game/sws2cs2menus/menu.xml";
+    public string HudLayoutPath { get; set; } = "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c";
 
     /// <summary>Workshop addon id for the HUD layout, when published.</summary>
     public string HudLayoutWorkshopId { get; set; } = string.Empty;
@@ -61,16 +61,16 @@ public sealed class MenuDefaults
 public sealed class MenuColors
 {
     /// <summary>Color of the menu title.</summary>
-    public string Title { get; set; } = "#FFD700";
+    public string Title { get; set; } = "#70E0C4";
 
     /// <summary>Color of the menu comment.</summary>
-    public string Comment { get; set; } = "#AAAAAA";
+    public string Comment { get; set; } = "#91A8B5";
 
     /// <summary>Color applied to the focused option.</summary>
-    public string Focused { get; set; } = "#FFD700";
+    public string Focused { get; set; } = "#70E0C4";
 
     /// <summary>Color of disabled options.</summary>
-    public string Disabled { get; set; } = "#808080";
+    public string Disabled { get; set; } = "#617786";
 }
 
 /// <summary>

@@ -26,6 +26,14 @@
   "cs2menus.demo.maps.title": "演示地图",
   "cs2menus.demo.maps.comment": "仅供演示，选择地图不会更换地图。",
   "cs2menus.demo.maps.selected": "演示：已选择地图 {0}，未更换地图。",
-  "cs2menus.hud.footer": "点击选项",
-  "cs2menus.hud.back": "返回"
+  "cs2menus.hud.footer": "点击选项继续操作",
+  "cs2menus.hud.back": "返回",
+  "cs2menus.hud.brand": "服务器管理",
+  "cs2menus.hud.count": "{0} 个选项",
+  "cs2menus.hud.section": "可用操作",
+  "cs2menus.hud.confirmation": "请核对操作信息",
+  "cs2menus.hud.home": "首页",
+  "cs2menus.hud.open": "进入管理",
+  "cs2menus.hud.select": "选择",
+  "cs2menus.hud.unavailable": "不可用"
 }

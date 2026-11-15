@@ -1,0 +1,196 @@
+<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SWS2 管理员 HUD · 交互预览</title><style>/* Panorama CSS; CS2 scales this 1080-high HUD canvas to the client resolution. */
+.root, #sw_root { width: 100%; height: 100%; }
+.root { z-index: 100; }
+.hidden { display: none !important; }
+.menu-box {
+    width: 940px; height: 716px;  
+    display: flex; flex-direction: column;
+    background: linear-gradient(135deg, #18282dfc, #111b22fc 40%, #10171ffc);
+    border: 1px solid #a1c9d02b; border-top: 2px solid #70e0c4; border-radius: 12px;
+    box-shadow: 0 14px 64px #000000b0;
+    animation-name: panel-in; animation-duration: 0.2s; animation-timing-function: ease-out;
+}
+Label { font-family: "Stratum2", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; color: #eaf2f5; }
+.topbar { width: 100%; height: 76px; padding: 0px 28px; display: flex; flex-direction: row; border-bottom: 1px solid #aac7d018; background-color: #ffffff02; }
+.brand-mark { width: 32px; height: 32px;  border-radius: 8px; background-color: #70e0c4; }
+.brand-mark Label {   font-size: 23px; font-weight: bold; color: #10251f; }
+.brand-name { margin-left: 12px;  font-size: 21px; font-weight: bold; letter-spacing: 3px; }
+.topbar-divider { width: 1px; height: 20px;  margin: 0px 20px; background-color: #a1c9d032; }
+.brand-caption {  font-size: 14px; color: #9bb1bb; letter-spacing: 1px; }
+.operator { flex: 1; min-width: 0; width: auto; display: flex; flex-direction: row;  margin-left: 28px; }
+.status-dot { width: 6px; height: 6px; border-radius: 3px; background-color: #70e0c4;  margin-right: 9px; }
+#sw_operator { flex: 1; min-width: 0; width: auto; font-size: 13px; color: #b8cad2; white-space: nowrap; text-overflow: ellipsis; }
+.close-btn { width: 34px; height: 34px;  border-radius: 6px; margin-left: 18px; background-color: #ffffff07; }
+.close-btn Label {   font-size: 25px; color: #9bb1bb; }
+.close-btn:hover { background-color: #f0788325; }
+.close-btn:hover Label { color: #ff9ca5; }
+.content { width: 100%; flex: 1; min-height: 0; height: auto; padding: 24px 32px 12px 32px; display: flex; flex-direction: column; }
+.breadcrumb { width: 100%; height: 24px; }
+#sw_context { width: 100%; font-size: 12px; color: #7d99a6; white-space: nowrap; text-overflow: ellipsis; }
+.heading { width: 100%; height: 48px; display: flex; flex-direction: row; }
+.menu-title { flex: 1; min-width: 0; width: auto;  font-size: 30px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; }
+.count-badge {  margin-left: 20px; padding: 5px 10px; border: 1px solid #70e0c425; border-radius: 5px; background-color: #70e0c409; color: #8cdcc9; font-size: 12px; }
+.menu-comment { width: 100%; height: 44px; padding-top: 5px; }
+#sw_comment_text { width: 100%; font-size: 14px; color: #91a8b5; max-height: 38px; text-overflow: ellipsis; }
+.section-line { width: 100%; height: 32px; margin-top: 8px; display: flex; flex-direction: row; }
+.section-accent { width: 3px; height: 10px;  margin-right: 9px; background-color: #70e0c4; }
+#sw_section {  font-size: 11px; color: #a3b6c0; letter-spacing: 1px; }
+.section-rule { flex: 1; min-width: 0; width: auto; height: 1px;  margin-left: 14px; background-color: #a1c9d019; }
+.menu-items { width: 100%; flex: 1; min-height: 0; height: auto; padding-top: 8px; display: flex; flex-direction: column; }
+.item {
+    width: 100%; height: 64px; margin-bottom: 8px; padding-right: 16px; display: flex; flex-direction: row;
+    border: 1px solid #a1c9d017; border-radius: 7px; background-color: #9fc6dc06;
+    transition-property: background-color, border-color, transform; transition-duration: 0.12s;
+}
+.item:hover { background-color: #70e0c40d; border: 1px solid #70e0c46b; }
+.item:active { transform: translate3d(2px, 0px, 0px); background-color: #70e0c419; }
+.item-marker { width: 3px; height: 22px;  background-color: #70e0c400; }
+.item:hover .item-marker { background-color: #70e0c4; }
+.item-symbol { width: 36px; height: 36px;  margin-left: 14px; margin-right: 14px; border: 1px solid #a1c9d022; border-radius: 7px; background-color: #8fb5cf09; }
+.item-glyph {   color: #7f9ca9; font-size: 13px; font-weight: bold; }
+.item:hover .item-symbol { border: 1px solid #70e0c442; background-color: #70e0c40c; }
+.item:hover .item-glyph { color: #70e0c4; }
+.item-image { width: 80px; height: 46px; margin-right: 14px;  border-radius: 4px; background-color: #23323e; }
+.has-image .item-symbol { display: none !important; }
+.has-image .item-image { margin-left: 14px; }
+.item-body { flex: 1; min-width: 0; width: auto;  display: flex; flex-direction: column; }
+.item-text { width: 100%; font-size: 16px; white-space: nowrap; text-overflow: ellipsis; }
+.item-comment { width: 100%; margin-top: 5px; color: #8ca3af; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+.item-action {  margin-left: 16px; color: #87b5ac; font-size: 12px; }
+.item-arrow {  margin-left: 12px; font-size: 25px; color: #6b8796; }
+.item.disabled { opacity: 0.38; }
+.item.disabled:hover { background-color: #9fc6dc06; border: 1px solid #a1c9d017; }
+.item.disabled .item-arrow { display: none !important; }
+.item.destructive .item-glyph, .item.destructive .item-text, .item.destructive .item-action { color: #ff9ca5; }
+.item.destructive .item-symbol { border: 1px solid #f0788338; background-color: #f078830b; }
+.item.destructive:hover { border: 1px solid #f0788377; background-color: #f0788310; }
+.item.destructive:hover .item-marker { background-color: #f07883; }
+/* Dashboard feature cards; other consumers keep the list layout by default. */
+.dashboard .menu-items { display: flex; flex-direction: row; }
+.dashboard .item { flex: 1; min-width: 0; width: auto; height: 288px; padding: 26px; margin-right: 16px; display: flex; flex-direction: column; }
+.dashboard #sw_item1 { margin-right: 0px; }
+.dashboard .item-marker { display: none !important; }
+.dashboard .item-symbol { width: 56px; height: 56px; margin: 0px 0px 30px 0px;  border-radius: 11px; border: 1px solid #70e0c43b; background-color: #70e0c40b; }
+.dashboard .item-glyph { font-size: 19px; color: #70e0c4; }
+.dashboard .item-body { width: 100%; flex: 1; min-height: 0; height: auto;  }
+.dashboard .item-text { font-size: 23px; font-weight: bold; }
+.dashboard .item-comment { margin-top: 12px; max-height: 50px; font-size: 14px; white-space: normal; line-height: 23px; }
+.dashboard .item-action { margin: 10px 0px 0px 0px; font-size: 13px; color: #70e0c4; }
+.dashboard .item-arrow {  margin: -24px 0px 0px 0px; color: #70e0c4; }
+.confirmation .menu-box { border-top-color: #edbd7d; }
+.confirmation .section-accent { background-color: #edbd7d; }
+.confirmation .menu-comment { height: 64px; }
+.confirmation #sw_comment_text { color: #d2bc9c; max-height: 58px; }
+.confirmation .item { height: 82px; }
+.menu-footer { width: 100%; height: 72px; padding: 0px 28px; display: flex; flex-direction: row; background-color: #080e1438; border-top: 1px solid #aac7d018; }
+.nav-btn, .page-btn { height: 34px;  border: 1px solid #a1c9d025; border-radius: 5px; background-color: #9fc6dc05; }
+.nav-btn { min-width: 80px; margin-right: 8px; padding: 0px 14px; }
+.nav-btn Label {   font-size: 13px; color: #b0c3cd; white-space: nowrap; }
+.nav-btn:hover, .page-btn:hover { background-color: #70e0c415; border: 1px solid #70e0c450; }
+.page-btn { width: 34px; }
+.page-btn Label {   font-size: 23px; color: #b0c3cd; }
+.page-btn.disabled { opacity: 0.25; }
+.page-btn.disabled:hover { background-color: #9fc6dc05; border: 1px solid #a1c9d025; }
+.page-text { width: 72px; text-align: center;  font-size: 13px; color: #b0c3cd; }
+.footer-text { flex: 1; min-width: 0; width: auto;  font-size: 12px; color: #738e9e; white-space: nowrap; text-overflow: ellipsis; margin: 0px 12px; }
+#sw_root.menu-refresh-a .menu-items { animation-name: items-in-a; animation-duration: 0.14s; animation-timing-function: ease-out; }
+#sw_root.menu-refresh-b .menu-items { animation-name: items-in-b; animation-duration: 0.14s; animation-timing-function: ease-out; }
+@keyframes panel-in {
+    0% { opacity: 0; transform: translate3d(0px, 12px, 0px); }
+    100% { opacity: 1; transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes items-in-a {
+    0% { opacity: 0.3; transform: translate3d(0px, 5px, 0px); }
+    100% { opacity: 1; transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes items-in-b {
+    0% { opacity: 0.3; transform: translate3d(0px, 5px, 0px); }
+    100% { opacity: 1; transform: translate3d(0px, 0px, 0px); }
+}
+
+/* Local vector icons stay crisp at every HUD scale and require no web requests. */
+.symbol-icon { width: 22px; height: 22px;   display: none !important; }
+.icon-players .players-icon, .icon-maps .maps-icon, .icon-warning .warning-icon { visibility: visible; }
+.icon-players .item-glyph, .icon-maps .item-glyph, .icon-warning .item-glyph { display: none !important; }
+.dashboard .symbol-icon { width: 30px; height: 30px; }
+
+.players-icon { background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIiBzdHJva2U9IiM3MGUwYzQiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEzIiBjeT0iMTEiIHI9IjQiLz48cGF0aCBkPSJNNSAyNnYtM2E4IDggMCAwIDEgMTYgMHYzTTIzIDdhNCA0IDAgMCAxIDAgOE0yNCAxOWE2IDYgMCAwIDEgNCA1djIiLz48L3N2Zz4K"); }
+.maps-icon { background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIiBzdHJva2U9IiM3MGUwYzQiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Im00IDggOC00IDggNCA4LTR2MjBsLTggNC04LTQtOCA0VjhaTTEyIDR2MjBNMjAgOHYyMCIvPjxwYXRoIGQ9Im04IDE3IDMtMiA1IDMgOC01IiBzdHJva2UtZGFzaGFycmF5PSIyIDMiLz48L3N2Zz4K"); }
+.warning-icon { background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjljYTUiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xNC4zIDVhMiAyIDAgMCAxIDMuNCAwbDExIDE5QTIgMiAwIDAgMSAyNyAyN0g1YTIgMiAwIDAgMS0xLjctM2wxMS0xOVoiLz48cGF0aCBkPSJNMTYgMTJ2N00xNiAyM2guMDEiLz48L3N2Zz4K"); }
+.symbol-icon { background-size: 100% 100%; background-repeat: no-repeat; }
+
+
+* { box-sizing: border-box; flex-shrink: 0; }
+body { margin: 0; overflow: hidden; font: 14px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; background: #111c25; color: #eaf2f5; }
+button { position: relative; font: inherit; cursor: pointer; color: inherit; text-align: left; border: 0; }
+button:focus-visible { outline: 2px solid #70e0c4; outline-offset: 3px; }
+span { display: block; }
+div { position: relative; }
+button:disabled { cursor: default; }
+#stage { width: 1920px; height: 1080px; position: absolute; transform-origin: top left; }
+.game { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 60% 35%, #506069, #253541 45%, #101a23 85%); }
+.game:before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 130px, #b8cdd70a 131px), repeating-linear-gradient(90deg, transparent, transparent 160px, #b8cdd70a 161px); transform: perspective(550px) rotateX(35deg) scale(2); }
+.game:after { content: ''; position: absolute; left: 280px; top: 110px; width: 420px; height: 800px; background: linear-gradient(100deg,#283c49,#1a2a35); transform: skewY(-12deg); box-shadow: 930px 60px 0 150px #203440; opacity: .65; }
+.preview-label { position: absolute; top: 32px; left: 36px; font-size: 13px; letter-spacing: 2px; color: #8ba5b6; }
+.preview-note { position: absolute; bottom: 32px; width: 100%; text-align: center; color: #7893a4; font-size: 12px; }
+#sw_root { display: flex; align-items: center; justify-content: center; }
+.root, #sw_root { pointer-events: none; }
+.menu-box { pointer-events: auto; }
+.menu-box { overflow: hidden; }
+.topbar, .heading, .section-line, .menu-footer, .item { align-items: center; }
+.brand-mark, .item-symbol, .close-btn, .page-btn, .nav-btn { display: flex; align-items: center; justify-content: center; }
+.operator { align-items: center; }
+.item-body { overflow: hidden; }
+.menu-title, .item-text, .item-comment, #sw_operator, #sw_context { overflow: hidden; }
+.count-badge { flex-shrink: 0; }
+.dashboard .item { align-items: flex-start; }
+.dashboard .item-body { flex: 1; }
+.dashboard .item-arrow { position: absolute; right: 26px; bottom: 26px; margin: 0; }
+.item-image { object-fit: cover; }
+.icon-players .players-icon, .icon-maps .maps-icon, .icon-warning .warning-icon { display: block !important; }
+.symbol-icon { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.footer-text { overflow: hidden; }
+#toast { position: absolute; bottom: 92px; left: 50%; transform: translateX(-50%); padding: 14px 24px; border: 1px solid #70e0c455; border-radius: 8px; background: #132a27; color: #a7efdb; display: none; }
+#reopen { position: absolute; inset: 0; margin: auto; width: 200px; height: 48px; border: 1px solid #70e0c455; border-radius: 8px; background: #132a27; text-align: center; display: none; }
+</style><div id="stage"><div class="game"></div><div class="preview-label">SWS2 / CUSTOM HUD</div><div class="root"><div id="sw_root"><div class="menu-box"><div class="topbar"><div class="brand-mark"><span>S</span></div><span class="brand-name">SWS2</span><div class="topbar-divider"></div><span id="sw_brand" class="brand-caption"></span><div class="operator"><div class="status-dot"></div><span id="sw_operator"></span></div><button id="sw_close" class="close-btn"><span>×</span></button></div><div class="content"><div class="breadcrumb"><span id="sw_context"></span></div><div class="heading"><span id="sw_title" class="menu-title"></span><span id="sw_count" class="count-badge"></span></div><div id="sw_comment" class="menu-comment"><span id="sw_comment_text"></span></div><div class="section-line"><div class="section-accent"></div><span id="sw_section"></span><div class="section-rule"></div></div><div class="menu-items"><button id="sw_item0" class="item"><div class="item-marker"></div><div class="item-symbol"><div class="symbol-icon players-icon"></div><div class="symbol-icon maps-icon"></div><div class="symbol-icon warning-icon"></div><span id="sw_item0_glyph" class="item-glyph"></span></div><div class="item-body"><span id="sw_item0_text" class="item-text"></span><span id="sw_item0_comment" class="item-comment"></span></div><span id="sw_item0_action" class="item-action"></span><span class="item-arrow">›</span></button><button id="sw_item1" class="item"><div class="item-marker"></div><div class="item-symbol"><div class="symbol-icon players-icon"></div><div class="symbol-icon maps-icon"></div><div class="symbol-icon warning-icon"></div><span id="sw_item1_glyph" class="item-glyph"></span></div><div class="item-body"><span id="sw_item1_text" class="item-text"></span><span id="sw_item1_comment" class="item-comment"></span></div><span id="sw_item1_action" class="item-action"></span><span class="item-arrow">›</span></button><button id="sw_item2" class="item"><div class="item-marker"></div><div class="item-symbol"><div class="symbol-icon players-icon"></div><div class="symbol-icon maps-icon"></div><div class="symbol-icon warning-icon"></div><span id="sw_item2_glyph" class="item-glyph"></span></div><div class="item-body"><span id="sw_item2_text" class="item-text"></span><span id="sw_item2_comment" class="item-comment"></span></div><span id="sw_item2_action" class="item-action"></span><span class="item-arrow">›</span></button><button id="sw_item3" class="item"><div class="item-marker"></div><div class="item-symbol"><div class="symbol-icon players-icon"></div><div class="symbol-icon maps-icon"></div><div class="symbol-icon warning-icon"></div><span id="sw_item3_glyph" class="item-glyph"></span></div><div class="item-body"><span id="sw_item3_text" class="item-text"></span><span id="sw_item3_comment" class="item-comment"></span></div><span id="sw_item3_action" class="item-action"></span><span class="item-arrow">›</span></button><button id="sw_item4" class="item"><div class="item-marker"></div><div class="item-symbol"><div class="symbol-icon players-icon"></div><div class="symbol-icon maps-icon"></div><div class="symbol-icon warning-icon"></div><span id="sw_item4_glyph" class="item-glyph"></span></div><div class="item-body"><span id="sw_item4_text" class="item-text"></span><span id="sw_item4_comment" class="item-comment"></span></div><span id="sw_item4_action" class="item-action"></span><span class="item-arrow">›</span></button></div></div><div class="menu-footer"><button id="sw_home" class="nav-btn"><span id="sw_home_text"></span></button><button id="sw_back" class="nav-btn"><span id="sw_back_text"></span></button><span id="sw_footer" class="footer-text"></span><button id="sw_prev" class="page-btn"><span>‹</span></button><span id="sw_page" class="page-text"></span><button id="sw_next" class="page-btn"><span>›</span></button></div></div></div></div><div class="preview-note">界面交互预览 · 示例数据 · 游戏内使用 !admin 打开</div><div id="toast" role="status"></div><button id="reopen">重新打开 !admin</button></div><script>
+const $ = id => document.getElementById(id);
+const text = (id, value) => { $(id).textContent = value; };
+const maps = Object.entries({kz_angina:'3636272568',kz_angina_x:'3746453872',kz_antimony:'3609954118',kz_asteroid_beach:'3771237485',kz_avalon:'3583337319',kz_bayharborbhopper:'3593758954',kz_bhop_apricity:'3514400945',kz_bhop_majka:'3764093804',kz_bhop_slide:'3636997995'});
+const people = ['XBDJ', 'Alice', '山海', 'KZ enjoyer', '夜航星', 'a_very_long_player_name_for_layout_check', '青空'];
+const stack = [];
+const item = (name, comment, action, glyph='', danger=false, disabled=false) => ({name, comment, action, glyph, danger, disabled});
+function push(title, comment, items, layout='list') { stack.push({title,comment,items,layout,page:0}); render(); }
+function toast(message) { text('toast', '预览：'+message); $('toast').style.display='block'; clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('toast').style.display='none',3500); }
+function home() { stack.length=0; push('管理员面板','管理当前服务器，让每一次操作清晰、可控。',[
+ item('玩家操作','查看在线玩家，执行踢出、封禁与交流管理。',players,'P'),
+ item('地图管理','浏览服务器地图列表，选择下一张目的地。',mapList,'M')], 'dashboard'); }
+function players() { push('玩家操作','选择一位在线玩家，查看可用操作。受保护的玩家不可选择。',people.map((name,i)=>item(name+' ['+(i%2?'CT':'SPEC')+']',i===0?'目标受免疫等级保护。':'#'+i+'  ·  7656119800000000'+i,()=>actions(name),'P',false,i===0))); }
+function actions(name) { push('操作: '+name,'当前目标 · '+name,[
+ item('踢出','断开连接，玩家仍可重新加入',()=>confirm('踢出 '+name+'?', '即将踢出 '+name+'。玩家将立即断开连接，之后仍可重新加入。','确认踢出',()=>{toast('已踢出 '+name);home();},true),'!',true),
+ item('封禁','选择时长，限制玩家加入服务器',()=>durations(name),'!',true),
+ ...['处决','拍击（10 伤害）','重生','冻结（5 秒）','禁麦（默认时长）','禁言（默认时长）','沉默（默认时长）'].map(action=>item(action,'',()=>toast('已执行'+action+' · '+name))) ]); }
+function durations(name) { push('封禁: '+name,'选择封禁时长，下一步核对并确认。',['30 秒','60 秒','1 小时','1 天','3 天','7 天','30 天','永久'].map(duration=>item(duration,'',()=>confirm('封禁 '+name+'?','即将封禁 '+name+'，时长：'+duration+'。确认后将断开连接并限制加入服务器。','确认封禁',()=>{toast('已封禁 '+name+' · '+duration);home();},true)))); }
+function mapList() { push('地图管理','从配置的地图中选择。未安装的工坊地图会在确认后按需下载。',maps.map(([name,id])=>item(name,'Workshop ID: '+id,()=>confirm('更换地图至 '+name+'?','Workshop ID: '+id+' · 确认后开始换图倒计时，未安装的地图将按需下载。','确认更换地图',()=>{toast('开始换图 · '+name);home();}),'M'))); }
+function confirm(title, comment, label, action, danger=false) { push(title,comment,[item(label,'',action,danger?'!':'M',danger),item('取消','返回上一步',()=>{stack.pop();render();})],'confirmation'); }
+function render() {
+ const frame=stack.at(-1), size=frame.layout==='dashboard'?2:5, pages=Math.ceil(frame.items.length/size), rows=frame.items.slice(frame.page*size,(frame.page+1)*size);
+ $('sw_root').className=frame.layout;
+ text('sw_brand','服务器管理'); text('sw_operator','XBDJ'); text('sw_context',stack.slice(-3).map(x=>x.title).join('  /  '));
+ text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':'可用操作');
+ text('sw_page',(frame.page+1)+' / '+pages); text('sw_footer','点击选项继续操作'); text('sw_home_text','首页'); text('sw_back_text','返回');
+ for(let i=0;i<5;i++) {
+  const row=rows[i], el=$('sw_item'+i); el.className='item'+(!row?' hidden':'')+(row?.danger?' destructive':'')+(row?.disabled?' disabled':'')+({P:' icon-players',M:' icon-maps','!':' icon-warning'}[row?.glyph]||''); el.disabled=!row||!!row.disabled;
+  if(!row) continue;
+  text('sw_item'+i+'_glyph',row.glyph||String(frame.page*size+i+1).padStart(2,'0')); text('sw_item'+i+'_text',row.name); text('sw_item'+i+'_comment',row.comment); text('sw_item'+i+'_action',row.disabled?'不可用':frame.layout==='dashboard'?'进入管理':'选择'); el.onclick=row.action;
+ }
+ for(const id of ['sw_home','sw_back']) $(id).classList.toggle('hidden',stack.length<2);
+ $('sw_prev').disabled=frame.page===0; $('sw_next').disabled=frame.page===pages-1;
+ $('sw_prev').classList.toggle('disabled',$('sw_prev').disabled); $('sw_next').classList.toggle('disabled',$('sw_next').disabled);
+}
+$('sw_prev').onclick=()=>{stack.at(-1).page--;render();}; $('sw_next').onclick=()=>{stack.at(-1).page++;render();};
+$('sw_back').onclick=()=>{stack.pop();render();}; $('sw_home').onclick=home;
+$('sw_close').onclick=()=>{$('sw_root').classList.add('hidden');$('reopen').style.display='block';};
+$('reopen').onclick=()=>{$('reopen').style.display='none';home();};
+function resize(){const scale=Math.min(innerWidth/1920,innerHeight/1080);$('stage').style.transform='scale('+scale+')';$('stage').style.left=(innerWidth-1920*scale)/2+'px';$('stage').style.top=(innerHeight-1080*scale)/2+'px';}
+window.addEventListener('resize',resize);home();resize();
+</script></html>
