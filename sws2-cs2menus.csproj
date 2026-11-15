@@ -61,6 +61,7 @@
     <ItemGroup>
       <WorkshopSources Include="workshop/**/*" />
     </ItemGroup>
+    <RemoveDir Directories="$(PublishDir)workshop-source" />
     <Copy SourceFiles="@(WorkshopSources)" DestinationFiles="@(WorkshopSources->'$(PublishDir)workshop-source/%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>

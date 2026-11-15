@@ -35,5 +35,14 @@
   "cs2menus.hud.home": "Home",
   "cs2menus.hud.open": "Open module",
   "cs2menus.hud.select": "Select",
-  "cs2menus.hud.unavailable": "Unavailable"
+  "cs2menus.hud.unavailable": "Unavailable",
+  "cs2menus.hud.navigation": "MANAGEMENT",
+  "cs2menus.hud.navigation_hint": "Select a category to switch the right pane.",
+  "cs2menus.hud.close": "Close",
+  "cs2menus.hud.previous": "Previous",
+  "cs2menus.hud.next": "Next",
+  "cs2menus.hud.maps": "AVAILABLE MAPS",
+  "cs2menus.hud.no_image": "No preview",
+  "cs2menus.hud.map_tier": "{0} Tier {1}",
+  "cs2menus.hud.tier_unknown": "{0} Unrated"
 }

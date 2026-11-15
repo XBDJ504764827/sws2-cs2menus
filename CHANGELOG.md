@@ -4,6 +4,19 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Map reservations
+
+- Add a MapPicker layout with four rows per page, independent CKZ/VNL badges and optional packaged map screenshots, leaving the administrator sidebar text-only.
+- Add a Steam/local screenshot packaging tool, cached/offline fallback and previews for the 15 requested maps; use CSS backgrounds without Image panels or JavaScript.
+- Extend the browser preview with `?menu=reservation`; sample ratings are illustrative only.
+
+### Sidebar revision
+
+- Replace feature cards with persistent text categories on the left and functional pages on the right, following the interaction of cs2kz's `!o` menu.
+- Automatically open the first enabled category; rebuild live content on category switches and preserve page position when navigating Back inside a category.
+- Remove all image/icon panels, SVG assets and glyph output. Use localized text for Close and paging.
+- Keep the category column visible through action and confirmation pages, and discard pending confirmations when switching categories.
+
 ### Fixed
 
 - Validate clicks against the options actually rendered and recheck current menu permissions; respect hidden navigation actions.

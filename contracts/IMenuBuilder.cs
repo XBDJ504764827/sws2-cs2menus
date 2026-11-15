@@ -11,7 +11,7 @@ public interface IMenuBuilder
     /// <summary>Sets an optional comment shown under the title.</summary>
     IMenuBuilder Comment(string? comment);
 
-    /// <summary>Selects a list, dashboard or confirmation layout.</summary>
+    /// <summary>Selects a list, dashboard, confirmation, sidebar or map picker layout.</summary>
     IMenuBuilder Layout(MenuLayout layout) => this;
 
     /// <summary>Sets the number of options per page. Values are clamped to 1-5.</summary>

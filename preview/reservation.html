@@ -1,0 +1,218 @@
+<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SWS2 HUD · 交互预览</title><style>/* Original text-only layout. Reference: cs2kz !o's persistent categories and right pane.
+   Panorama uses a 1080-high HUD canvas, scaled by CS2. Only map pickers use optional packaged map screenshots. */
+.root, #sw_root { width: 100%; height: 100%; }
+.root { z-index: 100; }
+.hidden { display: none !important; }
+Label { font-family: "Stratum2", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; color: #e4e8eb; }
+.menu-box {
+    width: 980px; height: 660px;
+      display: flex; flex-direction: column;
+    background-color: #111518fc; border: 1px solid #ffffff1c; border-radius: 6px;
+    box-shadow: 0 14px 64px #000000b0;
+    animation-name: panel-in; animation-duration: 0.16s; animation-timing-function: ease-out;
+}
+.window-header {
+    width: 100%; height: 64px; padding: 0px 24px; display: flex; flex-direction: row;
+    border-bottom: 1px solid #ffffff14;
+}
+.window-title { flex: 1; min-width: 0; width: auto;  font-size: 19px; font-weight: bold; letter-spacing: 1px; }
+.operator { max-width: 220px;  margin-right: 20px; color: #89949d; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.close-btn { width: 60px; height: 30px;  border: 1px solid #ffffff1c; border-radius: 3px; }
+.close-btn Label {   color: #a6afb6; font-size: 13px; white-space: nowrap; }
+.close-btn:hover { background-color: #ffffff0c; }
+.close-btn:hover Label { color: #ffffff; }
+.panes { width: 100%; flex: 1; min-height: 0; height: auto; display: flex; flex-direction: row; }
+.sidebar-nav {
+    width: 214px; height: 100%; padding: 26px 14px 22px 14px;
+    display: flex; flex-direction: column; border-right: 1px solid #ffffff14; background-color: #080b0e38;
+}
+.nav-heading { margin: 0px 12px 16px 12px; font-size: 11px; color: #707d87; letter-spacing: 1px; }
+.categories { width: 100%; flex: 1; min-height: 0; height: auto; display: flex; flex-direction: column; }
+.category {
+    width: 100%; height: 44px; margin-bottom: 6px; padding: 0px 12px;
+    border-left: 2px solid #ffffff00; border-radius: 3px;
+    background-color: #ffffff00; transition-property: background-color; transition-duration: 0.08s;
+}
+.category Label { width: 100%;  font-size: 16px; color: #a0abb3; white-space: nowrap; text-overflow: ellipsis; }
+.category:hover { background-color: #ffffff08; }
+.category.selected { border-left: 2px solid #98c8bc; background-color: #ffffff0e; }
+.category.selected Label { color: #e7f1ee; font-weight: bold; }
+.category.disabled { opacity: 0.35; }
+.category.disabled:hover { background-color: #ffffff00; }
+.sidebar-hint { width: 100%; padding: 0px 12px; color: #626f79; font-size: 11px; line-height: 19px; }
+.workspace { flex: 1; min-width: 0; width: auto; height: 100%; display: flex; flex-direction: column; }
+.content { width: 100%; flex: 1; min-height: 0; height: auto; padding: 24px 28px 12px 28px; display: flex; flex-direction: column; }
+.breadcrumb { width: 100%; height: 24px; color: #75838f; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+.heading { width: 100%; height: 43px; display: flex; flex-direction: row; }
+.menu-title { flex: 1; min-width: 0; width: auto;  font-size: 25px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; }
+.count-badge {  margin-left: 14px; color: #82918e; font-size: 12px; }
+.menu-comment { width: 100%; height: 52px; padding-top: 6px; }
+#sw_comment_text { width: 100%; max-height: 44px; font-size: 13px; line-height: 21px; color: #89969f; text-overflow: ellipsis; }
+.section-label { width: 100%; height: 28px; padding-top: 4px; color: #6f7b85; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid #ffffff10; }
+.menu-items { width: 100%; flex: 1; min-height: 0; height: auto; padding-top: 8px; display: flex; flex-direction: column; }
+.item {
+    width: 100%; height: 61px; margin-bottom: 3px; padding: 0px 12px;
+    display: flex; flex-direction: row; border-radius: 3px; background-color: #ffffff00;
+    transition-property: background-color; transition-duration: 0.08s;
+}
+.item:hover { background-color: #ffffff0b; }
+.item:active { background-color: #ffffff13; }
+.item-body { flex: 1; min-width: 0; width: auto;  display: flex; flex-direction: column; }
+.item-text { width: 100%; font-size: 16px; color: #dde3e7; white-space: nowrap; text-overflow: ellipsis; }
+.item-comment { width: 100%; margin-top: 5px; font-size: 12px; color: #798a97; white-space: nowrap; text-overflow: ellipsis; }
+.item-action {  margin-left: 18px; color: #8ba59d; font-size: 12px; }
+.item.disabled { opacity: 0.35; }
+.item.disabled:hover { background-color: #ffffff00; }
+.item.destructive .item-text, .item.destructive .item-action { color: #e29b9e; }
+.item.destructive:hover { background-color: #e29b9e0b; }
+.confirmation #sw_comment_text { color: #c7b9a5; }
+.confirmation .item { height: 72px; border: 1px solid #ffffff13; margin-top: 8px; }
+.menu-footer { width: 100%; height: 60px; padding: 0px 28px; display: flex; flex-direction: row; border-top: 1px solid #ffffff10; }
+.nav-btn, .page-btn { height: 30px;  padding: 0px 12px; border: 1px solid #ffffff1a; border-radius: 3px; }
+.nav-btn { min-width: 64px; margin-right: 8px; }
+.page-btn { width: 72px; }
+.nav-btn Label, .page-btn Label {   font-size: 12px; color: #a5b0b8; white-space: nowrap; }
+.nav-btn:hover, .page-btn:hover { background-color: #ffffff0b; }
+.page-btn.disabled { opacity: 0.25; }
+.page-btn.disabled:hover { background-color: #ffffff00; }
+.page-text { width: 56px;  text-align: center; font-size: 12px; color: #8e9ba5; }
+.footer-text { flex: 1; min-width: 0; width: auto;  margin-right: 12px; font-size: 11px; color: #657580; white-space: nowrap; text-overflow: ellipsis; }
+.sidebar-empty .menu-items { display: none !important; }
+#sw_root.menu-refresh-a .menu-items { animation-name: items-in-a; animation-duration: 0.12s; animation-timing-function: ease-out; }
+#sw_root.menu-refresh-b .menu-items { animation-name: items-in-b; animation-duration: 0.12s; animation-timing-function: ease-out; }
+@keyframes panel-in {
+    0% { opacity: 0; transform: translate3d(0px, 6px, 0px); }
+    100% { opacity: 1; transform: translate3d(0px, 0px, 0px); }
+}
+@keyframes items-in-a {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+@keyframes items-in-b {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* Map reservations share the window but do not show the admin navigation. */
+.item.map-row { height: 78px; padding: 0px 10px; }
+.map-thumbnail { width: 112px; height: 63px; margin-right: 18px;  background-color: #1b2227; border-radius: 3px; overflow: clip; }
+.no-image { width: 100%;  text-align: center; color: #657580; font-size: 11px; }
+.map-artwork { width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; }
+.map-tiers { width: 122px;  margin-left: 20px; display: flex; flex-direction: column; }
+.map-tier { width: 100%; margin: 2px 0px; padding: 3px 8px; border: 1px solid #98c8bc30; border-radius: 3px; color: #a8c4ba; font-size: 12px; text-align: center; white-space: nowrap; }
+
+/* Generated by tools/build_map_thumbnails.py. Local screenshots only. */
+.map-thumb-2f8f480259fca347 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-2f8f480259fca347.jpg"); }
+.map-thumb-6b1ae49e5568cf66 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-6b1ae49e5568cf66.jpg"); }
+.map-thumb-da8abf7a8d4b1353 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-da8abf7a8d4b1353.jpg"); }
+.map-thumb-9224bb7e06672014 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-9224bb7e06672014.jpg"); }
+.map-thumb-3d90a481648b4ae9 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-3d90a481648b4ae9.jpg"); }
+.map-thumb-017df662f72cf8cb { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-017df662f72cf8cb.jpg"); }
+.map-thumb-41155f61f1b70b19 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-41155f61f1b70b19.jpg"); }
+.map-thumb-a69876ab9d6ff1d5 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-a69876ab9d6ff1d5.jpg"); }
+.map-thumb-f2ef50ebd42b8c2c { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-f2ef50ebd42b8c2c.jpg"); }
+.map-thumb-7d4a7b992f9a886d { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-7d4a7b992f9a886d.jpg"); }
+.map-thumb-d42480e5d5838945 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-d42480e5d5838945.jpg"); }
+.map-thumb-5f5fba13266a5160 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-5f5fba13266a5160.jpg"); }
+.map-thumb-adcb1a3047d977a8 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-adcb1a3047d977a8.jpg"); }
+.map-thumb-d116072ace399b19 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-d116072ace399b19.jpg"); }
+.map-thumb-3e3b2c1d2e6691f6 { background-image: url("../workshop/panorama/images/custom_game/sws2cs2menus/maps/map-thumb-3e3b2c1d2e6691f6.jpg"); }
+
+
+* { box-sizing: border-box; flex-shrink: 0; }
+body { margin: 0; overflow: hidden; font: 14px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; background: #151b20; color: #e4e8eb; }
+button { position: relative; font: inherit; cursor: pointer; color: inherit; text-align: left; border: 0; background: transparent; }
+button:focus-visible { outline: 1px solid #98c8bc; outline-offset: 2px; }
+span { display: block; }
+div { position: relative; }
+button:disabled { cursor: default; }
+#stage { width: 1920px; height: 1080px; position: absolute; transform-origin: top left; }
+.game { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 60% 35%, #39454c, #252f38 45%, #131c22 85%); }
+.game:before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 130px, #b8cdd706 131px), repeating-linear-gradient(90deg, transparent, transparent 160px, #b8cdd706 161px); transform: perspective(550px) rotateX(35deg) scale(2); }
+.preview-label { position: absolute; top: 32px; left: 36px; font-size: 12px; letter-spacing: 2px; color: #71838f; }
+.preview-note { position: absolute; bottom: 32px; width: 100%; text-align: center; color: #71838f; font-size: 12px; }
+#sw_root { display: flex; align-items: center; justify-content: center; }
+.root, #sw_root { pointer-events: none; }
+.menu-box { pointer-events: auto; overflow: hidden; }
+.window-header, .heading, .menu-footer, .item, .category { align-items: center; }
+.map-thumbnail { position: relative; overflow: hidden; display: flex; align-items: center; }
+.map-artwork { position: absolute; inset: 0; }
+.category { display: flex; }
+.nav-btn, .page-btn, .close-btn { display: flex; align-items: center; justify-content: center; }
+.item-body { overflow: hidden; }
+.menu-title, .item-text, .item-comment, #sw_operator, #sw_context { overflow: hidden; }
+.footer-text { overflow: hidden; }
+#toast { position: absolute; bottom: 112px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border: 1px solid #98c8bc40; border-radius: 4px; background: #17211f; color: #b4cec5; display: none; }
+#reopen { position: absolute; inset: 0; margin: auto; width: 200px; height: 48px; border: 1px solid #98c8bc40; border-radius: 4px; background: #17211f; text-align: center; display: none; }
+</style><div id="stage"><div class="game"></div><div class="preview-label">SWS2 / CUSTOM HUD</div><div class="root"><div id="sw_root"><div class="menu-box"><div class="window-header"><span id="sw_brand" class="window-title"></span><span id="sw_operator" class="operator"></span><button id="sw_close" class="close-btn"><span id="sw_close_text"></span></button></div><div class="panes"><div id="sw_sidebar" class="sidebar-nav"><span id="sw_navigation" class="nav-heading"></span><div class="categories"><button id="sw_category0" class="category"><span id="sw_category0_text"></span></button><button id="sw_category1" class="category"><span id="sw_category1_text"></span></button><button id="sw_category2" class="category"><span id="sw_category2_text"></span></button><button id="sw_category3" class="category"><span id="sw_category3_text"></span></button><button id="sw_category4" class="category"><span id="sw_category4_text"></span></button></div><span id="sw_sidebar_hint" class="sidebar-hint"></span></div><div class="workspace"><div class="content"><span id="sw_context" class="breadcrumb"></span><div class="heading"><span id="sw_title" class="menu-title"></span><span id="sw_count" class="count-badge"></span></div><div id="sw_comment" class="menu-comment"><span id="sw_comment_text"></span></div><span id="sw_section" class="section-label"></span><div class="menu-items"><button id="sw_item0" class="item"><div id="sw_item0_thumbnail" class="map-thumbnail hidden"><span id="sw_item0_no_image" class="no-image"></span><div id="sw_item0_artwork" class="map-artwork"></div></div><div class="item-body"><span id="sw_item0_text" class="item-text"></span><span id="sw_item0_comment" class="item-comment"></span></div><div id="sw_item0_tiers" class="map-tiers hidden"><span id="sw_item0_ckz_tier" class="map-tier"></span><span id="sw_item0_vnl_tier" class="map-tier"></span></div><span id="sw_item0_action" class="item-action"></span></button><button id="sw_item1" class="item"><div id="sw_item1_thumbnail" class="map-thumbnail hidden"><span id="sw_item1_no_image" class="no-image"></span><div id="sw_item1_artwork" class="map-artwork"></div></div><div class="item-body"><span id="sw_item1_text" class="item-text"></span><span id="sw_item1_comment" class="item-comment"></span></div><div id="sw_item1_tiers" class="map-tiers hidden"><span id="sw_item1_ckz_tier" class="map-tier"></span><span id="sw_item1_vnl_tier" class="map-tier"></span></div><span id="sw_item1_action" class="item-action"></span></button><button id="sw_item2" class="item"><div id="sw_item2_thumbnail" class="map-thumbnail hidden"><span id="sw_item2_no_image" class="no-image"></span><div id="sw_item2_artwork" class="map-artwork"></div></div><div class="item-body"><span id="sw_item2_text" class="item-text"></span><span id="sw_item2_comment" class="item-comment"></span></div><div id="sw_item2_tiers" class="map-tiers hidden"><span id="sw_item2_ckz_tier" class="map-tier"></span><span id="sw_item2_vnl_tier" class="map-tier"></span></div><span id="sw_item2_action" class="item-action"></span></button><button id="sw_item3" class="item"><div id="sw_item3_thumbnail" class="map-thumbnail hidden"><span id="sw_item3_no_image" class="no-image"></span><div id="sw_item3_artwork" class="map-artwork"></div></div><div class="item-body"><span id="sw_item3_text" class="item-text"></span><span id="sw_item3_comment" class="item-comment"></span></div><div id="sw_item3_tiers" class="map-tiers hidden"><span id="sw_item3_ckz_tier" class="map-tier"></span><span id="sw_item3_vnl_tier" class="map-tier"></span></div><span id="sw_item3_action" class="item-action"></span></button><button id="sw_item4" class="item"><div id="sw_item4_thumbnail" class="map-thumbnail hidden"><span id="sw_item4_no_image" class="no-image"></span><div id="sw_item4_artwork" class="map-artwork"></div></div><div class="item-body"><span id="sw_item4_text" class="item-text"></span><span id="sw_item4_comment" class="item-comment"></span></div><div id="sw_item4_tiers" class="map-tiers hidden"><span id="sw_item4_ckz_tier" class="map-tier"></span><span id="sw_item4_vnl_tier" class="map-tier"></span></div><span id="sw_item4_action" class="item-action"></span></button></div></div><div class="menu-footer"><button id="sw_home" class="nav-btn"><span id="sw_home_text"></span></button><button id="sw_back" class="nav-btn"><span id="sw_back_text"></span></button><span id="sw_footer" class="footer-text"></span><button id="sw_prev" class="page-btn"><span id="sw_prev_text"></span></button><span id="sw_page" class="page-text"></span><button id="sw_next" class="page-btn"><span id="sw_next_text"></span></button></div></div></div></div></div></div><div class="preview-note">界面交互预览 · 示例数据 · 游戏内使用 !admin 打开</div><div id="toast" role="status"></div><button id="reopen">重新打开 !admin</button></div><script>
+const $ = id => document.getElementById(id);
+const text = (id, value) => { $(id).textContent = value; };
+const maps = Object.entries({kz_angina:'3636272568',kz_angina_x:'3746453872',kz_antimony:'3609954118',kz_asteroid_beach:'3771237485',kz_avalon:'3583337319',kz_bayharborbhopper:'3593758954',kz_bhop_apricity:'3514400945',kz_bhop_majka:'3764093804',kz_bhop_slide:'3636997995'});
+const people = ['XBDJ', 'Alice', '山海', 'KZ enjoyer', '夜航星', 'a_very_long_player_name_for_layout_check', '青空'];
+const thumbnailClasses = {};
+Promise.all(maps.map(async ([name,id])=>{ const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('workshop:'+id)); thumbnailClasses[id]='map-thumb-'+Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,16); })).then(()=>render());
+const reservationMode = true;
+const stack = [];
+let activeCategory = 0;
+const item = (name, comment, action, danger=false, disabled=false) => ({name, comment, action, danger, disabled});
+function push(title, comment, items, layout='list') { stack.push({title,comment,items,layout,page:0}); render(); }
+function toast(message) { text('toast', '预览：'+message); $('toast').style.display='block'; clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('toast').style.display='none',3500); }
+function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else mapList(); }
+function home() { if(reservationMode) { stack.length=0; reservation(); } else selectCategory(0); }
+function reservation() {
+ const ckz=[2,3,null,5,1,6,4,7,8], vnl=[4,null,2,6,3,7,5,8,9]; // Illustrative preview data, not real map ratings.
+ const items=maps.map(([name,id],i)=>({...item(name,'作者信息不可用 · '+name,()=>{
+  toast('已预定 '+name+'，使用 !rtv 同意换图'); $('sw_root').classList.add('hidden'); $('reopen').style.display='block';
+ }), map:true, ckz:ckz[i], vnl:vnl[i], workshopId:id}));
+ push('预定下一张地图','点击地图即可预定。预定后，玩家使用 !rtv 同意换图。',items,'map-picker');
+}
+function players() { push('玩家操作','选择在线玩家，查看可用操作。受保护的玩家不可选择。',people.map((name,i)=>item(name+' ['+(i%2?'CT':'SPEC')+']',i===0?'目标受免疫等级保护。':'#'+i+'  ·  7656119800000000'+i,()=>actions(name),false,i===0))); }
+function actions(name) { push('操作: '+name,'当前目标 · '+name,[
+ item('踢出','断开连接，玩家仍可重新加入',()=>confirm('踢出 '+name+'?', '即将踢出 '+name+'。玩家将立即断开连接，之后仍可重新加入。','确认踢出',()=>{toast('已踢出 '+name);home();},true),true),
+ item('封禁','选择时长，限制玩家加入服务器',()=>durations(name),true),
+ ...['处决','拍击（10 伤害）','重生','冻结（5 秒）','禁麦（默认时长）','禁言（默认时长）','沉默（默认时长）'].map(action=>item(action,'',()=>toast('已执行'+action+' · '+name))) ]); }
+function durations(name) { push('封禁: '+name,'选择封禁时长，下一步核对并确认。',['30 秒','60 秒','1 小时','1 天','3 天','7 天','30 天','永久'].map(duration=>item(duration,'',()=>confirm('封禁 '+name+'?','即将封禁 '+name+'，时长：'+duration+'。确认后将断开连接并限制加入服务器。','确认封禁',()=>{toast('已封禁 '+name+' · '+duration);home();},true)))); }
+function mapList() {
+ const items=maps.map(([name,id])=>item(name,'CKZ 未定级 | VNL 未定级 · Workshop ID: '+id,()=>confirm(
+  '更换地图至 '+name+'?',
+  '将切换至 '+name+'（'+id+'）。确认后开始 3 秒倒计时；未安装的工坊地图会先下载。',
+  '确认更换地图',
+  ()=>{toast('开始换图 · '+name);selectCategory(1);}
+ )));
+ push('地图管理','从配置的地图中选择。未安装的工坊地图会在确认后按需下载。',items);
+}
+function confirm(title, comment, label, action, danger=false) { push(title,comment,[item(label,'',action,danger),item('取消','返回上一步',()=>{stack.pop();render();})],'confirmation'); }
+function render() {
+ const frame=stack.at(-1), size=reservationMode?4:5, pages=Math.ceil(frame.items.length/size), rows=frame.items.slice(frame.page*size,(frame.page+1)*size);
+ $('sw_root').className=(reservationMode?'':'sidebar ')+frame.layout;
+ $('sw_sidebar').classList.toggle('hidden',reservationMode);
+ text('sw_brand',reservationMode?'预定下一张地图':'管理员面板'); text('sw_operator','XBDJ'); text('sw_context', [reservationMode?'地图预定':'管理员面板',...stack.map(x=>x.title)].slice(-3).join('  /  '));
+ text('sw_navigation','管理功能'); text('sw_sidebar_hint','选择功能，切换右侧操作内容。');
+ for(let i=0;i<5;i++) {
+  const el=$('sw_category'+i); el.className='category'+(i>1?' hidden':'')+(i===activeCategory?' selected':'');
+  if(i<2) { text('sw_category'+i+'_text',i===0?'玩家操作':'地图管理'); el.onclick=()=>selectCategory(i); }
+ }
+ text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':reservationMode?'可预定地图':'可用操作');
+ text('sw_page',(frame.page+1)+' / '+pages); text('sw_footer','点击选项继续操作'); text('sw_home_text','首页'); text('sw_back_text','返回'); text('sw_close_text','关闭'); text('sw_prev_text','上一页'); text('sw_next_text','下一页');
+ for(let i=0;i<5;i++) {
+  const row=rows[i], el=$('sw_item'+i); el.className='item'+(!row?' hidden':'')+(row?.danger?' destructive':'')+(row?.disabled?' disabled':'')+(row?.map?' map-row':''); el.disabled=!row||!!row.disabled;
+  $('sw_item'+i+'_thumbnail').classList.toggle('hidden',!row?.map); $('sw_item'+i+'_tiers').classList.toggle('hidden',!row?.map);
+  $('sw_item'+i+'_artwork').className='map-artwork '+(thumbnailClasses[row?.workshopId]||'');
+  text('sw_item'+i+'_ckz_tier',row?.ckz?'CKZ 等级 '+row.ckz:'CKZ 等级未知'); text('sw_item'+i+'_vnl_tier',row?.vnl?'VNL 等级 '+row.vnl:'VNL 等级未知'); text('sw_item'+i+'_no_image','暂无图片');
+  if(!row) continue;
+  text('sw_item'+i+'_text',row.name); text('sw_item'+i+'_comment',row.comment); text('sw_item'+i+'_action',row.disabled?'不可用':'选择');
+  $('sw_item'+i+'_comment').classList.toggle('hidden',!row.comment); el.onclick=row.action;
+ }
+ $('sw_home').classList.add('hidden'); $('sw_back').classList.toggle('hidden',stack.length<2);
+ $('sw_prev').disabled=frame.page===0; $('sw_next').disabled=frame.page===pages-1;
+ $('sw_prev').classList.toggle('disabled',$('sw_prev').disabled); $('sw_next').classList.toggle('disabled',$('sw_next').disabled);
+}
+$('sw_prev').onclick=()=>{stack.at(-1).page--;render();}; $('sw_next').onclick=()=>{stack.at(-1).page++;render();};
+$('sw_back').onclick=()=>{stack.pop();render();};
+$('sw_close').onclick=()=>{$('sw_root').classList.add('hidden');$('reopen').style.display='block';};
+$('reopen').onclick=()=>{$('reopen').style.display='none';home();};
+function resize(){const scale=Math.min(innerWidth/1920,innerHeight/1080);$('stage').style.transform='scale('+scale+')';$('stage').style.left=(innerWidth-1920*scale)/2+'px';$('stage').style.top=(innerHeight-1080*scale)/2+'px';}
+window.addEventListener('resize',resize);home();resize();
+
+if(reservationMode) { document.querySelector('.preview-note').textContent='地图预定预览 · 等级为示例数据 · 游戏内使用 !yd 打开'; text('reopen','重新打开 !yd'); }
+</script></html>

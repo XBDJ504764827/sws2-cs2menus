@@ -7,19 +7,23 @@ menu backend.
 workshop/
 └── panorama/
     ├── layout/custom_game/sws2cs2menus/menu.xml
-    ├── styles/custom_game/sws2cs2menus/menu.css
-    └── images/custom_game/sws2cs2menus/{players,maps,warning}.svg
+    ├── styles/custom_game/sws2cs2menus/{menu,map_thumbnails}.css
+    └── images/custom_game/sws2cs2menus/maps/*.jpg
 ```
 
-The layout provides a centered 940 × 716 panel on CS2's 1080-high HUD canvas,
-with a brand header, administrator name, breadcrumb trail, option count, five list
-slots and a fixed footer. Dashboard menus show two feature cards; confirmations
-use an amber accent and red destructive actions. Local SVG icons need no external
-image service. The server alternates refresh classes for content transitions.
+The layout provides a centered 980 × 660 text-only window on CS2's 1080-high
+HUD canvas. A 214-pixel category column stays on the left while the right pane
+shows the active list, player action menu or confirmation. Navigation and paging
+stay at the bottom of the right pane. The administrator panel has no images or icons. A separate map picker layout can show optional map screenshots and independent CKZ/VNL ratings.
 
-Copy **all** of `panorama/`, including `images/custom_game/sws2cs2menus/`, and
-republish the existing addon when upgrading. Updating only the plugin DLL does
-not update the client layout. A new client download / reconnect may be needed.
+The `!o` menu in cs2kz-metamod was used as an interaction reference; this addon
+has its own XML, CSS and server contract. Keep `sw_category0`–`sw_category4` and
+all dialog-variable panel IDs in sync with the plugin.
+
+Update the plugin DLLs and recompile both XML and CSS when upgrading. Replace
+old compiled `sws2cs2menus` resources when testing locally; restart the client to
+clear cached layouts. When distributing through the Workshop, update the same
+addon and reconnect after clients download the update.
 
 ## 1. Create the addon
 
@@ -39,8 +43,8 @@ Copy the `panorama` folder from this repository into the addon root:
 Counter-Strike 2/content/csgo_addons/sws2cs2menus/
 └── panorama/
     ├── layout/custom_game/sws2cs2menus/menu.xml
-    ├── styles/custom_game/sws2cs2menus/menu.css
-    └── images/custom_game/sws2cs2menus/{players,maps,warning}.svg
+    ├── styles/custom_game/sws2cs2menus/{menu,map_thumbnails}.css
+    └── images/custom_game/sws2cs2menus/maps/*.jpg
 ```
 
 Keep the directory names exactly as shown. The server writes panel IDs such as
@@ -115,15 +119,17 @@ Reload `sws2-cs2menus` or restart the server, then run:
 - `HudLayoutPath` matches the layout file.
 - `!menudemo` opens the HUD.
 - The centered panel appears with a short fade/slide animation.
-- `!admin` shows Player actions and Map management cards.
+- `!admin` selects the first permitted category and displays its content on the right.
+- Player actions / Map management remain visible on the left in all child pages.
+- Switching category from a confirmation page does not execute the pending action.
 - Kicks / bans show the target and duration before confirmation.
-- Home returns to the root; Back preserves the previous page.
+- Back inside a category preserves the previous page; category roots have no Back action.
 - Submenu and page changes replay the option-list animation.
 - Mouse click selects items and shows the press effect.
-- `<` and `>` change pages.
+- Previous / Next text buttons change pages.
 - `Back` returns to the parent menu.
-- `X` closes the menu and releases the cursor.
-- Map menus show local map icons and the configured Workshop IDs.
+- The text Close button closes the menu and releases the cursor.
+- Map menus show map names and configured Workshop IDs without icons.
 
 ## Troubleshooting
 
@@ -149,3 +155,50 @@ The browser preview is an approximation and cannot validate Panorama compilation
 
 Set `Backend` to `hudlayout` explicitly, or restart the plugin after the addon is
 mounted. The `auto` check runs when `sws2-cs2menus` loads.
+
+## Map reservation pictures
+
+`!yd` in sws2-cs2rockthevote uses the MapPicker layout: four map rows per page,
+map names, separate CKZ and VNL badges, local screenshot backgrounds and text
+selection buttons. Unrated modes and maps without screenshots each have an
+explicit placeholder. All panels remain Panel/Label/Button; no Image element or
+client script is required. The admin sidebar never displays these pictures.
+
+The source includes Workshop previews for the 15 maps in mapmanager's
+`resources/templates/map-catalog.example.jsonc`. Generate pictures for another
+catalog from the menus repository:
+
+```sh
+python3 tools/build_map_thumbnails.py --config /path/to/mapmanager/config.jsonc
+```
+
+This reads both compact and extended maps and legacy arrays, downloads Steam
+preview images, copies PNG/JPEG files into the addon and writes
+`map_thumbnails.css`. Classes are derived from the stable map ID, so renaming a
+map or changing CKZ/VNL ratings does not require regenerating pictures. Existing
+images are cached; delete a cached image first to download a newer screenshot.
+Steam failures keep cached pictures and leave other maps with a placeholder.
+
+For offline development, provide an image mapping file (relative paths resolve
+against that file):
+
+```json
+{
+  "kz_angina": "screenshots/angina.jpg",
+  "workshop:3746453872": "screenshots/angina_x.png"
+}
+```
+
+```sh
+python3 tools/build_map_thumbnails.py --config /path/to/config.jsonc --images images.json --offline
+```
+
+Recompile **XML, both CSS files and images** with Workshop Tools. Mount the new
+compiled addon on the server and client for local testing; restart/reconnect the
+client to clear cached layouts. Publish an addon update when ready to distribute.
+Remote runtime `ImageUrl` values remain metadata for other renderers; the native
+HUD cannot assign arbitrary background URLs through its server API.
+
+Browser preview: open `preview/index.html?menu=reservation`. Its ratings are
+illustrative sample data, not the actual ratings of those maps. Validate resource
+compilation, fonts, input capture and screenshots in a real CS2 client separately.

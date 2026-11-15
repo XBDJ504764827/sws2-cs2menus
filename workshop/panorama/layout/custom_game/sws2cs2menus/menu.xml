@@ -1,122 +1,136 @@
 <root>
   <styles>
     <include src="file://{resources}/styles/custom_game/sws2cs2menus/menu.css" />
+    <include src="file://{resources}/styles/custom_game/sws2cs2menus/map_thumbnails.css" />
   </styles>
   <Panel class="root" hittest="false">
     <Panel id="sw_root" hittest="false">
       <Panel class="menu-box">
-        <Panel class="topbar">
-          <Panel class="brand-mark" hittest="false"><Label text="S" hittest="false" /></Panel>
-          <Label class="brand-name" text="SWS2" hittest="false" />
-          <Panel class="topbar-divider" hittest="false" />
-          <Label id="sw_brand" class="brand-caption" text="{s:sw_brand}" hittest="false" />
-          <Panel class="operator" hittest="false">
-            <Panel class="status-dot" />
-            <Label id="sw_operator" text="{s:sw_operator}" />
-          </Panel>
-          <Button id="sw_close" class="close-btn"><Label text="×" hittest="false" /></Button>
+        <Panel class="window-header">
+          <Label id="sw_brand" class="window-title" text="{s:sw_brand}" hittest="false" />
+          <Label id="sw_operator" class="operator" text="{s:sw_operator}" hittest="false" />
+          <Button id="sw_close" class="close-btn"><Label id="sw_close_text" text="{s:sw_close_text}" hittest="false" /></Button>
         </Panel>
-        <Panel class="content">
-          <Panel class="breadcrumb" hittest="false">
-            <Label id="sw_context" text="{s:sw_context}" />
+        <Panel class="panes">
+          <Panel id="sw_sidebar" class="sidebar-nav">
+            <Label id="sw_navigation" class="nav-heading" text="{s:sw_navigation}" hittest="false" />
+            <Panel class="categories">
+              <Button id="sw_category0" class="category">
+                <Label id="sw_category0_text" text="{s:sw_category0_text}" hittest="false" />
+              </Button>
+              <Button id="sw_category1" class="category">
+                <Label id="sw_category1_text" text="{s:sw_category1_text}" hittest="false" />
+              </Button>
+              <Button id="sw_category2" class="category">
+                <Label id="sw_category2_text" text="{s:sw_category2_text}" hittest="false" />
+              </Button>
+              <Button id="sw_category3" class="category">
+                <Label id="sw_category3_text" text="{s:sw_category3_text}" hittest="false" />
+              </Button>
+              <Button id="sw_category4" class="category">
+                <Label id="sw_category4_text" text="{s:sw_category4_text}" hittest="false" />
+              </Button>
+            </Panel>
+            <Label id="sw_sidebar_hint" class="sidebar-hint" text="{s:sw_sidebar_hint}" hittest="false" />
           </Panel>
-          <Panel class="heading" hittest="false">
-            <Label id="sw_title" class="menu-title" text="{s:sw_title}" />
-            <Label id="sw_count" class="count-badge" text="{s:sw_count}" />
+          <Panel class="workspace">
+            <Panel class="content">
+              <Label id="sw_context" class="breadcrumb" text="{s:sw_context}" hittest="false" />
+              <Panel class="heading" hittest="false">
+                <Label id="sw_title" class="menu-title" text="{s:sw_title}" />
+                <Label id="sw_count" class="count-badge" text="{s:sw_count}" />
+              </Panel>
+              <Panel id="sw_comment" class="menu-comment" hittest="false">
+                <Label id="sw_comment_text" text="{s:sw_comment_text}" />
+              </Panel>
+              <Label id="sw_section" class="section-label" text="{s:sw_section}" hittest="false" />
+              <Panel class="menu-items" hittest="false">
+              <Button id="sw_item0" class="item">
+                <Panel id="sw_item0_thumbnail" class="map-thumbnail hidden" hittest="false">
+                  <Label id="sw_item0_no_image" class="no-image" text="{s:sw_item0_no_image}" hittest="false" />
+                  <Panel id="sw_item0_artwork" class="map-artwork" hittest="false" />
+                </Panel>
+                <Panel class="item-body" hittest="false">
+                  <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" hittest="false" />
+                  <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" hittest="false" />
+                </Panel>
+                <Panel id="sw_item0_tiers" class="map-tiers hidden" hittest="false">
+                  <Label id="sw_item0_ckz_tier" class="map-tier" text="{s:sw_item0_ckz_tier}" hittest="false" />
+                  <Label id="sw_item0_vnl_tier" class="map-tier" text="{s:sw_item0_vnl_tier}" hittest="false" />
+                </Panel>
+                <Label id="sw_item0_action" class="item-action" text="{s:sw_item0_action}" hittest="false" />
+              </Button>
+              <Button id="sw_item1" class="item">
+                <Panel id="sw_item1_thumbnail" class="map-thumbnail hidden" hittest="false">
+                  <Label id="sw_item1_no_image" class="no-image" text="{s:sw_item1_no_image}" hittest="false" />
+                  <Panel id="sw_item1_artwork" class="map-artwork" hittest="false" />
+                </Panel>
+                <Panel class="item-body" hittest="false">
+                  <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" hittest="false" />
+                  <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" hittest="false" />
+                </Panel>
+                <Panel id="sw_item1_tiers" class="map-tiers hidden" hittest="false">
+                  <Label id="sw_item1_ckz_tier" class="map-tier" text="{s:sw_item1_ckz_tier}" hittest="false" />
+                  <Label id="sw_item1_vnl_tier" class="map-tier" text="{s:sw_item1_vnl_tier}" hittest="false" />
+                </Panel>
+                <Label id="sw_item1_action" class="item-action" text="{s:sw_item1_action}" hittest="false" />
+              </Button>
+              <Button id="sw_item2" class="item">
+                <Panel id="sw_item2_thumbnail" class="map-thumbnail hidden" hittest="false">
+                  <Label id="sw_item2_no_image" class="no-image" text="{s:sw_item2_no_image}" hittest="false" />
+                  <Panel id="sw_item2_artwork" class="map-artwork" hittest="false" />
+                </Panel>
+                <Panel class="item-body" hittest="false">
+                  <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" hittest="false" />
+                  <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" hittest="false" />
+                </Panel>
+                <Panel id="sw_item2_tiers" class="map-tiers hidden" hittest="false">
+                  <Label id="sw_item2_ckz_tier" class="map-tier" text="{s:sw_item2_ckz_tier}" hittest="false" />
+                  <Label id="sw_item2_vnl_tier" class="map-tier" text="{s:sw_item2_vnl_tier}" hittest="false" />
+                </Panel>
+                <Label id="sw_item2_action" class="item-action" text="{s:sw_item2_action}" hittest="false" />
+              </Button>
+              <Button id="sw_item3" class="item">
+                <Panel id="sw_item3_thumbnail" class="map-thumbnail hidden" hittest="false">
+                  <Label id="sw_item3_no_image" class="no-image" text="{s:sw_item3_no_image}" hittest="false" />
+                  <Panel id="sw_item3_artwork" class="map-artwork" hittest="false" />
+                </Panel>
+                <Panel class="item-body" hittest="false">
+                  <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" hittest="false" />
+                  <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" hittest="false" />
+                </Panel>
+                <Panel id="sw_item3_tiers" class="map-tiers hidden" hittest="false">
+                  <Label id="sw_item3_ckz_tier" class="map-tier" text="{s:sw_item3_ckz_tier}" hittest="false" />
+                  <Label id="sw_item3_vnl_tier" class="map-tier" text="{s:sw_item3_vnl_tier}" hittest="false" />
+                </Panel>
+                <Label id="sw_item3_action" class="item-action" text="{s:sw_item3_action}" hittest="false" />
+              </Button>
+              <Button id="sw_item4" class="item">
+                <Panel id="sw_item4_thumbnail" class="map-thumbnail hidden" hittest="false">
+                  <Label id="sw_item4_no_image" class="no-image" text="{s:sw_item4_no_image}" hittest="false" />
+                  <Panel id="sw_item4_artwork" class="map-artwork" hittest="false" />
+                </Panel>
+                <Panel class="item-body" hittest="false">
+                  <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" hittest="false" />
+                  <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" hittest="false" />
+                </Panel>
+                <Panel id="sw_item4_tiers" class="map-tiers hidden" hittest="false">
+                  <Label id="sw_item4_ckz_tier" class="map-tier" text="{s:sw_item4_ckz_tier}" hittest="false" />
+                  <Label id="sw_item4_vnl_tier" class="map-tier" text="{s:sw_item4_vnl_tier}" hittest="false" />
+                </Panel>
+                <Label id="sw_item4_action" class="item-action" text="{s:sw_item4_action}" hittest="false" />
+              </Button>
+              </Panel>
+            </Panel>
+            <Panel class="menu-footer">
+              <Button id="sw_home" class="nav-btn"><Label id="sw_home_text" text="{s:sw_home_text}" hittest="false" /></Button>
+              <Button id="sw_back" class="nav-btn"><Label id="sw_back_text" text="{s:sw_back_text}" hittest="false" /></Button>
+              <Label id="sw_footer" class="footer-text" text="{s:sw_footer}" hittest="false" />
+              <Button id="sw_prev" class="page-btn"><Label id="sw_prev_text" text="{s:sw_prev_text}" hittest="false" /></Button>
+              <Label id="sw_page" class="page-text" text="{s:sw_page}" hittest="false" />
+              <Button id="sw_next" class="page-btn"><Label id="sw_next_text" text="{s:sw_next_text}" hittest="false" /></Button>
+            </Panel>
           </Panel>
-          <Panel id="sw_comment" class="menu-comment" hittest="false">
-            <Label id="sw_comment_text" text="{s:sw_comment_text}" />
-          </Panel>
-          <Panel class="section-line" hittest="false">
-            <Panel class="section-accent" />
-            <Label id="sw_section" text="{s:sw_section}" />
-            <Panel class="section-rule" />
-          </Panel>
-          <Panel class="menu-items" hittest="false">
-          <Button id="sw_item0" class="item">
-            <Panel class="item-marker" hittest="false" />
-            <Panel class="item-symbol" hittest="false">
-              <Panel class="symbol-icon players-icon" hittest="false" />
-              <Panel class="symbol-icon maps-icon" hittest="false" />
-              <Panel class="symbol-icon warning-icon" hittest="false" />
-              <Label id="sw_item0_glyph" class="item-glyph" text="{s:sw_item0_glyph}" hittest="false" />
-            </Panel>
-            <Panel class="item-body" hittest="false">
-              <Label id="sw_item0_text" class="item-text" text="{s:sw_item0_text}" hittest="false" />
-              <Label id="sw_item0_comment" class="item-comment" text="{s:sw_item0_comment}" hittest="false" />
-            </Panel>
-            <Label id="sw_item0_action" class="item-action" text="{s:sw_item0_action}" hittest="false" />
-            <Label class="item-arrow" text="›" hittest="false" />
-          </Button>
-          <Button id="sw_item1" class="item">
-            <Panel class="item-marker" hittest="false" />
-            <Panel class="item-symbol" hittest="false">
-              <Panel class="symbol-icon players-icon" hittest="false" />
-              <Panel class="symbol-icon maps-icon" hittest="false" />
-              <Panel class="symbol-icon warning-icon" hittest="false" />
-              <Label id="sw_item1_glyph" class="item-glyph" text="{s:sw_item1_glyph}" hittest="false" />
-            </Panel>
-            <Panel class="item-body" hittest="false">
-              <Label id="sw_item1_text" class="item-text" text="{s:sw_item1_text}" hittest="false" />
-              <Label id="sw_item1_comment" class="item-comment" text="{s:sw_item1_comment}" hittest="false" />
-            </Panel>
-            <Label id="sw_item1_action" class="item-action" text="{s:sw_item1_action}" hittest="false" />
-            <Label class="item-arrow" text="›" hittest="false" />
-          </Button>
-          <Button id="sw_item2" class="item">
-            <Panel class="item-marker" hittest="false" />
-            <Panel class="item-symbol" hittest="false">
-              <Panel class="symbol-icon players-icon" hittest="false" />
-              <Panel class="symbol-icon maps-icon" hittest="false" />
-              <Panel class="symbol-icon warning-icon" hittest="false" />
-              <Label id="sw_item2_glyph" class="item-glyph" text="{s:sw_item2_glyph}" hittest="false" />
-            </Panel>
-            <Panel class="item-body" hittest="false">
-              <Label id="sw_item2_text" class="item-text" text="{s:sw_item2_text}" hittest="false" />
-              <Label id="sw_item2_comment" class="item-comment" text="{s:sw_item2_comment}" hittest="false" />
-            </Panel>
-            <Label id="sw_item2_action" class="item-action" text="{s:sw_item2_action}" hittest="false" />
-            <Label class="item-arrow" text="›" hittest="false" />
-          </Button>
-          <Button id="sw_item3" class="item">
-            <Panel class="item-marker" hittest="false" />
-            <Panel class="item-symbol" hittest="false">
-              <Panel class="symbol-icon players-icon" hittest="false" />
-              <Panel class="symbol-icon maps-icon" hittest="false" />
-              <Panel class="symbol-icon warning-icon" hittest="false" />
-              <Label id="sw_item3_glyph" class="item-glyph" text="{s:sw_item3_glyph}" hittest="false" />
-            </Panel>
-            <Panel class="item-body" hittest="false">
-              <Label id="sw_item3_text" class="item-text" text="{s:sw_item3_text}" hittest="false" />
-              <Label id="sw_item3_comment" class="item-comment" text="{s:sw_item3_comment}" hittest="false" />
-            </Panel>
-            <Label id="sw_item3_action" class="item-action" text="{s:sw_item3_action}" hittest="false" />
-            <Label class="item-arrow" text="›" hittest="false" />
-          </Button>
-          <Button id="sw_item4" class="item">
-            <Panel class="item-marker" hittest="false" />
-            <Panel class="item-symbol" hittest="false">
-              <Panel class="symbol-icon players-icon" hittest="false" />
-              <Panel class="symbol-icon maps-icon" hittest="false" />
-              <Panel class="symbol-icon warning-icon" hittest="false" />
-              <Label id="sw_item4_glyph" class="item-glyph" text="{s:sw_item4_glyph}" hittest="false" />
-            </Panel>
-            <Panel class="item-body" hittest="false">
-              <Label id="sw_item4_text" class="item-text" text="{s:sw_item4_text}" hittest="false" />
-              <Label id="sw_item4_comment" class="item-comment" text="{s:sw_item4_comment}" hittest="false" />
-            </Panel>
-            <Label id="sw_item4_action" class="item-action" text="{s:sw_item4_action}" hittest="false" />
-            <Label class="item-arrow" text="›" hittest="false" />
-          </Button>
-          </Panel>
-        </Panel>
-        <Panel class="menu-footer">
-          <Button id="sw_home" class="nav-btn"><Label id="sw_home_text" text="{s:sw_home_text}" hittest="false" /></Button>
-          <Button id="sw_back" class="nav-btn"><Label id="sw_back_text" text="{s:sw_back_text}" hittest="false" /></Button>
-          <Label id="sw_footer" class="footer-text" text="{s:sw_footer}" hittest="false" />
-          <Button id="sw_prev" class="page-btn"><Label text="‹" hittest="false" /></Button>
-          <Label id="sw_page" class="page-text" text="{s:sw_page}" hittest="false" />
-          <Button id="sw_next" class="page-btn"><Label text="›" hittest="false" /></Button>
         </Panel>
       </Panel>
     </Panel>

@@ -14,8 +14,8 @@ Whitelist and RockTheVote consume the same menu service instead of writing
 their own pagination, navigation, permission and cleanup code.
 
 The primary renderer is SwiftlyS2 Custom HUD (`custom_hud_layout`) with a
-companion Panorama addon. It renders a centered dark panel with mint accents,
-local vector icons, breadcrumbs and fixed navigation. The optional center-HTML
+companion Panorama addon. It renders a dark text-only window with persistent
+categories on the left and the active page on the right. The optional center-HTML
 fallback uses `Core.Menu`.
 
 ## Features
@@ -36,8 +36,13 @@ fallback uses `Core.Menu`.
 
 ## New administrator HUD
 
-`!admin` in `sws2-cs2admin` opens two feature cards: **Player actions** and
-**Map management**. Players and maps are read when the module is entered.
+`!admin` in `sws2-cs2admin` opens a two-pane window: **Player actions** and
+**Map management** remain in the left category column while lists, player actions
+and confirmations appear on the right. The first permitted category opens
+automatically. Switching categories discards that category's pending navigation
+and rebuilds its live players/maps; Back inside a category preserves its page.
+The layout takes its category/right-pane interaction from cs2kz's `!o` menu and
+uses original text-only styling without image or icon assets.
 Kicks and bans use a separate confirmation screen; map changes use mapmanager's
 existing countdown, download and change flow. The HUD only captures input while
 open, and each administrator receives an independent panel.
@@ -49,7 +54,7 @@ Panorama and does not connect to a server. Workshop Tools and a CS2 client are
 required to validate native rendering, Chinese fonts, mouse capture and game actions.
 
 Update **both** the menus/admin plugin packages and the Workshop addon. An old
-addon cannot display the new panel IDs or icons. Follow [`workshop/README.md`](workshop/README.md).
+addon cannot display the new category panel IDs. Follow [`workshop/README.md`](workshop/README.md).
 The .NET archive also includes the addon source under `workshop-source/` for compilation;
 copying source files alone does not install a compiled client addon.
 
@@ -263,11 +268,15 @@ A menu definition is immutable and can be reused for multiple players. Every
 
 Useful builder methods:
 
-- `Layout(MenuLayout.Dashboard)` displays two feature cards per page.
-- `Layout(MenuLayout.Confirmation)` displays an amber confirmation screen.
-- The default `MenuLayout.List` preserves existing consumers such as RTV.
-- `Tag(new MenuOptionAppearance("!", Destructive: true))` marks a destructive action.
-  `"P"` and `"M"` select the built-in player and map icons; other glyphs render as text.
+- `Layout(MenuLayout.Sidebar)` on a root menu makes its first five visible options
+  persistent categories. Their callbacks can call `OpenSubMenu` to build live content.
+  The first enabled category opens on the next game tick.
+- `Layout(MenuLayout.Confirmation)` emphasizes confirmation text and actions.
+- The default `MenuLayout.List` preserves ordinary consumers;
+  standalone lists use the full content width. The previous `Dashboard` enum value
+  remains supported as a compact list for existing callers.
+- `Tag(new MenuOptionAppearance("", Destructive: true))` marks destructive text.
+  The glyph/image contract fields remain for compatibility; this HUD displays no icons.
 
 - `PageSize(n)` sets the page size (1-5).
 - `Permission("...")` gates the menu or an option.
@@ -289,6 +298,15 @@ Important methods:
 `IMenuDefinition.Closed` and `IMenuService.MenuClosed` are fired when a menu
 closes. The service also cleans up all sessions when a player disconnects, the
 map unloads, or the plugin is unloaded.
+
+
+`Layout(MenuLayout.MapPicker)` displays up to four map rows per page. Supply
+`.Tag(new MapMenuOptionAppearance(map.CkzTier, map.VnlTier, map.Id))` for independent
+CKZ/VNL badges and a packaged thumbnail keyed by the stable map ID. Missing ratings
+show an unknown label for that mode, and missing pictures show a placeholder.
+Only this layout displays map screenshots; the administrator sidebar stays text-only.
+Generate screenshots with `tools/build_map_thumbnails.py` before compiling the addon;
+see [map picture instructions](workshop/README.md#map-reservation-pictures).
 
 ## Building
 

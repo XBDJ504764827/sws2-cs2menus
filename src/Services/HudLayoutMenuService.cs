@@ -29,12 +29,16 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         "sw_back",
         "sw_home",
         "sw_close",
+        "sw_sidebar",
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_category{i}"),
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}"),
         .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_comment"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_thumbnail"),
+        .. Enumerable.Range(0, ItemSlots).Select(i => $"sw_item{i}_tiers"),
     ];
 
     private static readonly string[] ResetClassNames =
-        ["hidden", "disabled", "has-image", "destructive", "icon-players", "icon-maps", "icon-warning", "dashboard", "confirmation", "menu-refresh-a", "menu-refresh-b"];
+        ["hidden", "disabled", "destructive", "selected", "sidebar", "sidebar-empty", "confirmation", "map-picker", "map-row", "menu-refresh-a", "menu-refresh-b"];
 
     private sealed class MenuFrame
     {
@@ -62,6 +66,12 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         public bool Busy { get; set; }
 
         public bool AnimationToggle { get; set; }
+
+        public IMenuOptionDefinition[] Categories { get; set; } = [];
+
+        public string? ActiveCategoryId { get; set; }
+
+        public string?[] ThumbnailClasses { get; } = new string?[ItemSlots];
     }
 
     private readonly ISwiftlyCore _core;
@@ -141,6 +151,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         lock (_sync)
         {
             if (!TryGetSession(player, out var session) || session.Stack.Count <= 1 || !session.Stack[^1].Menu.ShowBack)
+            {
+                return false;
+            }
+
+            if (session.Stack[0].Menu.Layout == MenuLayout.Sidebar && session.Stack.Count <= 2)
             {
                 return false;
             }
@@ -312,6 +327,23 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
             RenderLocked(session);
             RaiseMenuOpened(player, menu);
+            if (session.Stack.Count == 1 && menu.Layout == MenuLayout.Sidebar)
+            {
+                var initialSession = session;
+                _core.Scheduler.NextTick(() =>
+                {
+                    lock (_sync)
+                    {
+                        if (!IsCurrentSession(initialSession) || initialSession.Stack.Count != 1 || initialSession.Busy)
+                        {
+                            return;
+                        }
+
+                        var index = Array.FindIndex(initialSession.Categories, category => category.Enabled);
+                        SelectCategory(initialSession, index);
+                    }
+                });
+            }
             return MenuOpenResult.Opened;
         }
     }
@@ -345,6 +377,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             session.Entity = entity;
             session.Variables.Clear();
             session.Classes.Clear();
+            Array.Clear(session.ThumbnailClasses);
             session.InputCapture = false;
 
             ResetClassesLocked(session, entity);
@@ -409,25 +442,67 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             .ToArray();
         frame.PageItems = pageItems;
 
-        SetClassLocked(session, "sw_root", "dashboard", menu.Layout == MenuLayout.Dashboard);
+        var sidebar = session.Stack[0].Menu.Layout == MenuLayout.Sidebar;
+        SetClassLocked(session, "sw_root", "sidebar", sidebar);
+        SetClassLocked(session, "sw_root", "sidebar-empty", sidebar && session.Stack.Count == 1);
+        SetClassLocked(session, "sw_sidebar", "hidden", !sidebar);
+        session.Categories = sidebar
+            ? GetVisibleOptions(player, session.Stack[0].Menu).Take(ItemSlots).ToArray()
+            : [];
+        SetTextLocked(session, "sw_navigation", localizer["cs2menus.hud.navigation"]);
+        SetTextLocked(session, "sw_sidebar_hint", localizer["cs2menus.hud.navigation_hint"]);
+        for (var i = 0; i < ItemSlots; i++)
+        {
+            var panel = $"sw_category{i}";
+            var category = i < session.Categories.Length ? session.Categories[i] : null;
+            SetClassLocked(session, panel, "hidden", category is null);
+            if (category is not null)
+            {
+                SetTextLocked(session, $"{panel}_text", category.Text);
+                SetClassLocked(session, panel, "disabled", !category.Enabled);
+                SetClassLocked(session, panel, "selected", category.Id == session.ActiveCategoryId);
+            }
+        }
         SetClassLocked(session, "sw_root", "confirmation", menu.Layout == MenuLayout.Confirmation);
-        SetTextLocked(session, "sw_brand", localizer["cs2menus.hud.brand"]);
+        var mapPicker = menu.Layout == MenuLayout.MapPicker;
+        SetClassLocked(session, "sw_root", "map-picker", mapPicker);
+        SetTextLocked(session, "sw_brand", sidebar || mapPicker ? session.Stack[0].Menu.Title : localizer["cs2menus.hud.brand"]);
         SetTextLocked(session, "sw_operator", player.Name);
         SetTextLocked(session, "sw_context", string.Join("  /  ", session.Stack.TakeLast(3).Select(item => item.Menu.Title)));
         SetTextLocked(session, "sw_title", menu.Title);
         SetTextLocked(session, "sw_page", $"{frame.Page + 1} / {pageCount}");
         SetTextLocked(session, "sw_count", localizer["cs2menus.hud.count", visibleOptions.Count]);
         SetTextLocked(session, "sw_section", localizer[menu.Layout == MenuLayout.Confirmation
-            ? "cs2menus.hud.confirmation" : "cs2menus.hud.section"]);
+            ? "cs2menus.hud.confirmation" : mapPicker ? "cs2menus.hud.maps" : "cs2menus.hud.section"]);
         SetTextLocked(session, "sw_comment_text", menu.Comment ?? string.Empty);
         SetTextLocked(session, "sw_footer", localizer["cs2menus.hud.footer"]);
         SetTextLocked(session, "sw_back_text", KeepOnOneLine(localizer["cs2menus.hud.back"]));
         SetTextLocked(session, "sw_home_text", localizer["cs2menus.hud.home"]);
+        SetTextLocked(session, "sw_close_text", localizer["cs2menus.hud.close"]);
+        SetTextLocked(session, "sw_prev_text", localizer["cs2menus.hud.previous"]);
+        SetTextLocked(session, "sw_next_text", localizer["cs2menus.hud.next"]);
         SetClassLocked(session, "sw_comment", "hidden", string.IsNullOrWhiteSpace(menu.Comment));
 
         for (var i = 0; i < ItemSlots; i++)
         {
             var panel = $"sw_item{i}";
+            var mapAppearance = i < pageItems.Length && mapPicker ? pageItems[i].Tag as MapMenuOptionAppearance : null;
+            var thumbnailClass = mapAppearance?.ThumbnailClass;
+            if (session.ThumbnailClasses[i] != thumbnailClass)
+            {
+                if (session.ThumbnailClasses[i] is { } previousClass)
+                {
+                    SetClassLocked(session, $"{panel}_artwork", previousClass, false);
+                }
+                if (thumbnailClass is not null)
+                {
+                    SetClassLocked(session, $"{panel}_artwork", thumbnailClass, true);
+                }
+                session.ThumbnailClasses[i] = thumbnailClass;
+            }
+            SetClassLocked(session, panel, "map-row", mapPicker);
+            SetClassLocked(session, $"{panel}_thumbnail", "hidden", !mapPicker);
+            SetClassLocked(session, $"{panel}_tiers", "hidden", !mapPicker);
             if (i >= pageItems.Length)
             {
                 SetClassLocked(session, panel, "hidden", true);
@@ -435,9 +510,18 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             }
 
             var option = pageItems[i];
+            if (mapPicker)
+            {
+                SetTextLocked(session, $"{panel}_no_image", localizer["cs2menus.hud.no_image"]);
+                SetTextLocked(session, $"{panel}_ckz_tier", mapAppearance?.CkzTier is > 0
+                    ? localizer["cs2menus.hud.map_tier", "CKZ", mapAppearance.CkzTier.Value]
+                    : localizer["cs2menus.hud.tier_unknown", "CKZ"]);
+                SetTextLocked(session, $"{panel}_vnl_tier", mapAppearance?.VnlTier is > 0
+                    ? localizer["cs2menus.hud.map_tier", "VNL", mapAppearance.VnlTier.Value]
+                    : localizer["cs2menus.hud.tier_unknown", "VNL"]);
+            }
             var appearance = option.Tag as MenuOptionAppearance;
             var comment = option.Comment ?? _config.Menu.DefaultComment;
-            SetTextLocked(session, $"{panel}_glyph", appearance?.Glyph ?? $"{frame.Page * pageSize + i + 1:00}");
             SetTextLocked(session, $"{panel}_text", option.Text);
             SetTextLocked(session, $"{panel}_comment", comment);
             SetTextLocked(session, $"{panel}_action", localizer[!option.Enabled
@@ -446,16 +530,13 @@ internal sealed class HudLayoutMenuService : IMenuBackend
             SetClassLocked(session, panel, "hidden", false);
             SetClassLocked(session, panel, "disabled", !option.Enabled);
             SetClassLocked(session, panel, "destructive", appearance?.Destructive == true);
-            SetClassLocked(session, panel, "icon-players", appearance?.Glyph == "P");
-            SetClassLocked(session, panel, "icon-maps", appearance?.Glyph == "M");
-            SetClassLocked(session, panel, "icon-warning", appearance?.Glyph == "!");
             SetClassLocked(session, $"{panel}_comment", "hidden", string.IsNullOrWhiteSpace(comment));
         }
 
         SetClassLocked(session, "sw_prev", "disabled", frame.Page <= 0);
         SetClassLocked(session, "sw_next", "disabled", frame.Page >= pageCount - 1);
-        SetClassLocked(session, "sw_back", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
-        SetClassLocked(session, "sw_home", "hidden", session.Stack.Count <= 1 || !menu.ShowBack);
+        SetClassLocked(session, "sw_back", "hidden", session.Stack.Count <= (sidebar ? 2 : 1) || !menu.ShowBack);
+        SetClassLocked(session, "sw_home", "hidden", sidebar || session.Stack.Count <= 1 || !menu.ShowBack);
         SetClassLocked(session, "sw_close", "hidden", !menu.ShowClose);
         SetClassLocked(session, "sw_root", "hidden", false);
         RestartMenuAnimationLocked(session);
@@ -515,6 +596,13 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 return;
             }
 
+            if (buttonId.StartsWith("sw_category", StringComparison.Ordinal)
+                && int.TryParse(buttonId.AsSpan("sw_category".Length), out var categoryIndex))
+            {
+                SelectCategory(session, categoryIndex);
+                return;
+            }
+
             if (buttonId == "sw_close" && frame.Menu.ShowClose)
             {
                 close = true;
@@ -558,7 +646,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
             if (back || home)
             {
-                if (session.Stack.Count <= 1)
+                var sidebar = session.Stack[0].Menu.Layout == MenuLayout.Sidebar;
+                if (session.Stack.Count <= (sidebar ? 2 : 1) || (home && sidebar))
                 {
                     return;
                 }
@@ -597,6 +686,39 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         }
 
         _ = HandleOptionAsync(session, frame, option);
+    }
+
+    // Called on the game thread while holding _sync. Category callbacks use the
+    // existing menu API, so consumers can rebuild live players/maps on every visit.
+    private void SelectCategory(PlayerSession session, int index)
+    {
+        if (session.Busy || session.Stack.Count == 0
+            || session.Stack[0].Menu.Layout != MenuLayout.Sidebar
+            || index < 0 || index >= session.Categories.Length)
+        {
+            return;
+        }
+
+        var root = session.Stack[0];
+        var category = session.Categories[index];
+        if (!category.Enabled || !HasPermission(session.Player, root.Menu.Permission)
+            || !GetVisibleOptions(session.Player, root.Menu).Contains(category))
+        {
+            return;
+        }
+
+        while (session.Stack.Count > 1)
+        {
+            var child = session.Stack[^1];
+            session.Stack.RemoveAt(session.Stack.Count - 1);
+            InvokeClosed(child.Menu, session.Player, MenuCloseReason.Replaced);
+            RaiseMenuClosed(session.Player, child.Menu, MenuCloseReason.Replaced);
+        }
+
+        session.ActiveCategoryId = category.Id;
+        session.Busy = true;
+        RenderLocked(session);
+        _ = HandleOptionAsync(session, root, category);
     }
 
     private async Task HandleOptionAsync(PlayerSession session, MenuFrame frame, IMenuOptionDefinition option)
@@ -904,7 +1026,13 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
     private static int GetPageSize(IMenuDefinition menu)
     {
-        return Math.Clamp(menu.PageSize, 1, menu.Layout == MenuLayout.Dashboard ? 2 : ItemSlots);
+        var maxItems = menu.Layout switch
+        {
+            MenuLayout.Dashboard => 2,
+            MenuLayout.MapPicker => 4,
+            _ => ItemSlots
+        };
+        return Math.Clamp(menu.PageSize, 1, maxItems);
     }
 
     private bool HasPermission(IPlayer player, string? permission)
