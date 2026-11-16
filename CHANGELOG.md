@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Live page replacement
+
+- Add ReplaceCurrent to the shared API and both renderers, preserving parent navigation and sidebar selection for administrator status refresh.
+- Extend the browser preview with map controls, server tools and the spectate action.
+
+### Fix registered HUD addons not being mounted
+
+- Replace `mm_add_addon` (registration only, refresh defaults to false) with a normal engine `mm_extra_addons` assignment that invokes MAM's download/mount refresh callback.
+- Refresh once when an existing HUD ID has no ready layout, preserving other IDs and their order; warn if resources remain absent instead of treating registration as success.
+- Register both `sw_hudstatus` and `hudstatus`, and print the live addon list, layout path and readiness.
+
 ### Automatic HUD mounting and administrator maps
 
 - Register the HUD Workshop ID once in config or the packaged manifest, then append it through MultiAddonManager without replacing other addons.

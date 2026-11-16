@@ -50,7 +50,13 @@ public partial class Sws2Cs2Menus : BasePlugin
         _menus = new MenuServiceProxy(CreateBackend(Core, _config));
         _hudAddon = new HudAddonMountService(Path.Combine(Core.PluginPath, "resources", "hud-addon.json"), Core.Logger,
             () => Core.ConVar.FindAsString("mm_extra_addons")?.ValueAsString,
-            command => Core.Engine.ExecuteCommand(command), config => HudLayoutMenuService.IsLayoutAvailable(Core, config));
+            value =>
+            {
+                // Assign through the engine's console path, so MAM's native change callback
+                // runs. SwiftlyS2's direct ConVar setters can bypass callbacks. MountList
+                // validates the entire value before it is embedded into this command.
+                Core.Engine.ExecuteCommand($"mm_extra_addons \"{value}\"\n");
+            }, config => HudLayoutMenuService.IsLayoutAvailable(Core, config));
 
         _configSubscription = options.OnChange(newConfig =>
         {

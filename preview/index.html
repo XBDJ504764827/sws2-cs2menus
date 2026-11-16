@@ -244,7 +244,7 @@ let activeCategory = 0;
 const item = (name, comment, action, danger=false, disabled=false) => ({name, comment, action, danger, disabled});
 function push(title, comment, items, layout='list') { stack.push({title,comment,items,layout,page:0}); render(); }
 function toast(message) { text('toast', '预览：'+message); $('toast').style.display='block'; clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('toast').style.display='none',3500); }
-function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else if(index===1) mapList(); else banFilters(); }
+function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else if(index===1) mapManagement(); else if(index===2) banFilters(); else serverMenu(); }
 function home() { if(reservationMode) { stack.length=0; reservation(); } else selectCategory(0); }
 function reservation() {
  const ckzNub=[2,3,null,5,1,6,4,7,8], ckzPro=[3,null,4,6,2,7,5,8,9], vnlNub=[4,null,2,6,3,7,5,8,9], vnlPro=[5,6,null,7,4,8,6,9,10]; // Illustrative preview data, not real map ratings.
@@ -253,18 +253,38 @@ function reservation() {
  }), map:true, ckzNub:ckzNub[i], ckzPro:ckzPro[i], vnlNub:vnlNub[i], vnlPro:vnlPro[i], workshopId:id}));
  push('预定下一张地图','点击地图即可预定。预定后，玩家使用 !rtv 同意换图。',items,'map-picker');
 }
-function players() { push('玩家操作','选择在线玩家，查看可用操作。受保护的玩家不可选择。',people.map((name,i)=>item(name+' ['+(i%2?'CT':'SPEC')+']',i===0?'目标受免疫等级保护。':'#'+i+'  ·  7656119800000000'+i,()=>actions(name),false,i===0))); }
+function players() { push('玩家操作','选择在线玩家进行管理或观战。受保护的玩家仅可观战。',people.map((name,i)=>item(name+' ['+(i%2?'CT':'SPEC')+']',i===0?'目标受免疫等级保护。':'#'+i+'  ·  7656119800000000'+i,()=>actions(name),false,i===0))); }
 function actions(name) { push('操作: '+name,'当前目标 · '+name,[
+ item('观战该玩家','加入观战队伍，并切换至该玩家的第一人称视角',()=>{toast('正在观战 '+name);$('sw_root').classList.add('hidden');$('reopen').style.display='block';}),
  item('踢出','断开连接，玩家仍可重新加入',()=>confirm('踢出 '+name+'?', '即将踢出 '+name+'。玩家将立即断开连接，之后仍可重新加入。','确认踢出',()=>{toast('已踢出 '+name);home();},true),true),
  item('封禁','选择时长，限制玩家加入服务器',()=>durations(name),true),
  ...['处决','拍击（10 伤害）','重生','冻结（5 秒）','禁麦（默认时长）','禁言（默认时长）','沉默（默认时长）'].map(action=>item(action,'',()=>toast('已执行'+action+' · '+name))) ]); }
 function durations(name) { push('封禁: '+name,'选择封禁时长，下一步核对并确认。',['30 秒','60 秒','1 小时','1 天','3 天','7 天','30 天','永久'].map(duration=>item(duration,'',()=>confirm('封禁 '+name+'?','即将封禁 '+name+'，时长：'+duration+'。确认后将断开连接并限制加入服务器。','确认封禁',()=>{toast('已封禁 '+name+' · '+duration);home();},true)))); }
+// Demonstration state only: no server requests or real countdown run in this preview.
+const mapState={paused:false,pending:'kz_angina'};
+function mapManagement(replace=false) {
+ if(replace) stack.pop();
+ const status=mapState.paused?'地图更换已暂停 · XBDJ':mapState.pending?'等待换图：'+mapState.pending+' · 来源：rtv · 倒计时':'允许换图 · 当前没有待执行的换图';
+ push('地图管理',status,[
+  item('浏览并更换地图','选择服务器地图',()=>mapList()),
+  item('立即取消本次换图','取消倒计时或下载后的切换；玩家可以重新发起投票。',()=>{mapState.pending=null;toast('本次换图已取消，已清空旧投票');mapManagement(true);}),
+  item('立即暂停地图更换','取消当前换图，并阻止新的 RTV 和管理员换图，直到手动恢复。',()=>{mapState.paused=true;mapState.pending=null;toast('已暂停地图更换');mapManagement(true);},false,mapState.paused),
+  item('恢复地图更换','恢复后需要重新投票，旧换图不会自动执行。',()=>{mapState.paused=false;toast('已恢复地图更换');mapManagement(true);},false,!mapState.paused),
+  item('刷新换图状态','',()=>mapManagement(true))
+ ]);
+}
+function serverMenu() { push('服务器管理','服务器状态与管理员设置',[
+ item('当前服务器','kz_angina · 7 players',()=>{},false,true),
+ item('我的管理员信息','',()=>push('我的管理员信息','XBDJ',[item('SteamID','76561198000000001',()=>{},false,true),item('权限组','owner',()=>{},false,true)])),
+ item('重新加载管理员名单','',()=>toast('管理员名单已重新加载')),
+ item('审计日志目录','data/plugins/sws2-cs2admin/audit',()=>{},false,true)
+ ]); }
 function mapList() {
  const items=maps.map(([name,id])=>({...item(name,'CKZ NUB ? / PRO ? | VNL NUB ? / PRO ? · Workshop ID: '+id,()=>confirm(
   '更换地图至 '+name+'?',
   '将切换至 '+name+'（'+id+'）。确认后开始 3 秒倒计时；未安装的工坊地图会先下载。',
   '确认更换地图',
-  ()=>{toast('开始换图 · '+name);selectCategory(1);}
+  ()=>{if(mapState.paused){toast('地图更换已暂停，请先恢复');}else{mapState.pending=name;toast('开始换图 · '+name);}selectCategory(1);}
  )),map:true,workshopId:id}));
  push('地图管理','从配置的地图中选择。未安装的工坊地图会在确认后按需下载。',items,'map-picker');
 }
@@ -301,8 +321,8 @@ function render() {
  text('sw_brand',reservationMode?'预定下一张地图':'管理员面板'); text('sw_operator','XBDJ'); text('sw_context', [reservationMode?'地图预定':'管理员面板',...stack.map(x=>x.title)].slice(-3).join('  /  '));
  text('sw_navigation','管理功能'); text('sw_sidebar_hint','选择功能，切换右侧操作内容。');
  for(let i=0;i<5;i++) {
-  const el=$('sw_category'+i); el.className='category'+(i>2?' hidden':'')+(i===activeCategory?' selected':'');
-  if(i<3) { text('sw_category'+i+'_text',['玩家操作','地图管理','封禁管理'][i]); el.onclick=()=>selectCategory(i); }
+  const el=$('sw_category'+i); el.className='category'+(i>3?' hidden':'')+(i===activeCategory?' selected':'');
+  if(i<4) { text('sw_category'+i+'_text',['玩家操作','地图管理','封禁管理','服务器管理'][i]); el.onclick=()=>selectCategory(i); }
  }
  text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':frame.layout==='map-picker'?'地图列表 · NUB 存点 / PRO 裸跳':'可用操作');
  text('sw_page',(frame.page+1)+' / '+pages); text('sw_footer','点击选项继续操作'); text('sw_home_text','首页'); text('sw_back_text','返回'); text('sw_close_text','关闭'); text('sw_prev_text','上一页'); text('sw_next_text','下一页');

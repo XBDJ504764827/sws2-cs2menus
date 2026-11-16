@@ -2,6 +2,7 @@ using SwiftlyS2.Shared.Commands;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.Translation;
 using Sws2Cs2Menus.Contracts;
+using Sws2Cs2Menus.Services;
 
 namespace Sws2Cs2Menus;
 
@@ -12,12 +13,14 @@ namespace Sws2Cs2Menus;
 /// </summary>
 public partial class Sws2Cs2Menus
 {
-    [Command("hudstatus", true, "", "Report HUD resource registration (server console only)")]
+    [Command("hudstatus", false, "", "Report HUD resource registration (server console only)")]
+    [CommandAlias("hudstatus", registerRaw: true)]
     public void HudStatusCommand(ICommandContext context)
     {
         if (context.IsSentByPlayer) return;
         CheckHudResources();
         context.Reply($"[sws2-cs2menus] {_hudAddon.Status}; renderer={(_menus.UsesHud ? "hudlayout" : "classic")}");
+        context.Reply($"[sws2-cs2menus] mm_extra_addons={Core.ConVar.FindAsString("mm_extra_addons")?.ValueAsString ?? "<unavailable>"}; layout={_config.Menu.HudLayoutPath}; layoutReady={HudLayoutMenuService.IsLayoutAvailable(Core, _config)}");
     }
 
     private const string DemoAdminPermission = "sws2.cs2menus.demo.admin";

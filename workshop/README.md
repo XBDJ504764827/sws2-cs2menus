@@ -71,7 +71,10 @@ published ID and leave `AutoMountHudAddon` enabled. Alternatively, package
 default (replace the example with your real ID). A nonempty config value wins.
 The distributed manifest currently has an empty ID until you register your addon.
 
-Menus waits for MAM and runs `mm_add_addon <id>`, preserving unrelated addon IDs.
+Menus waits for MAM, merges the ID into the live `mm_extra_addons` ConVar and uses
+a normal engine console assignment so MAM's change callback refreshes/downloads/mounts the addons.
+`mm_add_addon` only registers an ID and does not refresh; it is no longer used.
+Unrelated addon IDs and their order are preserved.
 You no longer need to add the HUD ID to `mm_extra_addons` by hand. The existing
 MultiAddonManager config may keep IDs used by other addons.
 The same Workshop item retains its ID across updates. Steam/Workshop download
@@ -93,7 +96,9 @@ In `game/csgo/addons/swiftlys2/configs/plugins/sws2-cs2menus/config.jsonc`:
 Both `auto` and `hudlayout` use center HTML while resources are absent, then switch
 to Custom HUD once the layout is mounted. `classic` keeps the center-HTML renderer
 and disables automatic addon registration. Checks run every five seconds and on
-map load; failed registrations retry at most every 30 seconds.
+map load; failed registrations retry at most every 30 seconds. An existing ID with no ready
+layout receives one refresh per map/config cycle, using a changed trailing delimiter
+if necessary to trigger the callback without changing addon membership.
 
 Check `sw_hudstatus` in the server console, then reopen `!menudemo` or `!admin`.
 For unpublished local compiled-resource testing, set `AutoMountHudAddon: false`
@@ -144,6 +149,21 @@ The browser preview is an approximation and cannot validate Panorama compilation
 Run `sw_hudstatus` in the server console. Check the registered ID, MAM installation,
 download status and layout path. Availability is rechecked periodically; reopen the
 menu after the renderer switches. Reconnect if client resources are stale.
+
+### ID is listed but addon does not load
+
+Older plugin builds used `mm_add_addon`, which only adds the ID to the list.
+Update the plugin: it now triggers MAM's refresh callback even when the ID is
+already registered. `sw_hudstatus` and the raw alias `hudstatus` both work in
+server console; the old build accepts only `hudstatus`.
+
+Check the reported `layoutReady`, layout path and MAM download messages. A listed
+ID alone does not prove successful download or mounting. `mm_print_searchpaths`
+shows mounted VPK paths. If a VPK is mounted but `layoutReady=False`, inspect its
+compiled contents for `panorama/layout/custom_game/sws2cs2menus/menu.vxml_c`.
+Steam access or Workshop availability failures must be resolved at the download layer.
+After the initial download, MAM can reload the current map; connected clients may
+need to reconnect to receive the HUD addon.
 
 ## Map reservation pictures
 

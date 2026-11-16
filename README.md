@@ -92,7 +92,7 @@ loads it once as a shared assembly so every consumer plugin uses the same types.
 | Command | Description |
 | :--- | :--- |
 | `!menudemo` / `!menutest` | Open the demo menu |
-| `sw_hudstatus` (server console) | Check addon registration and selected renderer |
+| `sw_hudstatus` / `hudstatus` (server console) | Check addon registration and selected renderer |
 
 The demo is intended for testing the service; it can be disabled in the config.
 
@@ -145,9 +145,11 @@ to be mounted on clients through MultiAddonManager. See
 [`workshop/README.md`](workshop/README.md) for the complete Workshop Tools and
 MultiAddonManager procedure.
 
-With `AutoMountHudAddon: true` (default), menus registers its HUD addon through
-MultiAddonManager's public `mm_add_addon` command. Other addon IDs are preserved;
-no config file is rewritten. Install MultiAddonManager on the server first.
+With `AutoMountHudAddon: true` (default), menus merges its HUD ID into the live
+`mm_extra_addons` ConVar through a normal engine console assignment. This triggers MultiAddonManager's
+change callback to refresh/download/mount addons. `mm_add_addon` alone only changes
+the list, so it is insufficient. Other addon IDs and order are preserved; no config
+file is rewritten. Install MultiAddonManager on the server first.
 
 Register the published ID **once** in `Menu.HudLayoutWorkshopId`, or put it in
 `plugins/sws2-cs2menus/resources/hud-addon.json` as the distribution default:
@@ -164,7 +166,12 @@ to `mm_extra_addons`. When distributing a plugin release, include your registere
 manifest again so an upgrade cannot replace it with an empty default.
 
 The plugin checks every five seconds and on map load/config reload. Missing MAM
-or pending downloads are retried; registration commands are rate-limited to 30 seconds.
+or pending downloads are retried; failed registration writes are rate-limited to 30 seconds. An already-registered
+ID whose layout is missing receives one refresh per map/config cycle. A trailing
+comma may be added/removed to force a real ConVar change without changing addon
+membership; MAM ignores empty entries. Pending downloads are not refreshed repeatedly.
+After 60 seconds without the layout, logs explain that registration does not prove
+mounting and direct you to MAM download errors and compiled addon contents.
 `auto` and `hudlayout` switch to Custom HUD after the layout becomes available.
 Switching renderers closes existing menus; reopen `!admin` / `!yd` afterward.
 Clients may need to reconnect after a first mount or addon update.
@@ -378,3 +385,7 @@ is only a fallback for local builds.
 ## License
 
 [MIT](LICENSE)
+
+## Refreshing a live page
+
+`IMenuService.ReplaceCurrent(player, definition)` replaces the displayed page while preserving its parent and sidebar selection. Permission/player/visible-option validation runs before replacement; without a session it opens a root. Both HUD and classic backends implement this operation. Admin map controls use it to refresh status after cancel/pause/resume without growing the navigation stack. Upgrade consumer plugins with the matching contract DLL.

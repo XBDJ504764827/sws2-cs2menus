@@ -46,6 +46,8 @@ internal sealed class MenuServiceProxy : IMenuBackend
 
     public MenuOpenResult OpenSubMenu(IPlayer player, IMenuDefinition menu) => _backend.OpenSubMenu(player, menu);
 
+    public MenuOpenResult ReplaceCurrent(IPlayer player, IMenuDefinition menu) => _backend.ReplaceCurrent(player, menu);
+
     public bool Back(IPlayer player) => _backend.Back(player);
 
     public bool Close(IPlayer player) => _backend.Close(player);

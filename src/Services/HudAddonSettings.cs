@@ -24,4 +24,17 @@ internal static class HudAddonSettings
 
     public static bool Contains(string list, string id) => list.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
         .Any(item => item == id);
+
+    public static string MountList(string list, string id)
+    {
+        if (list.Any(character => !char.IsAsciiDigit(character) && character != ',' && character != ' ')
+            || Normalize(id) != id)
+            throw new InvalidDataException("HUD addon list must contain only numeric Workshop IDs separated by commas.");
+        if (!Contains(list, id)) return string.IsNullOrWhiteSpace(list) ? id : list.TrimEnd(',') + "," + id;
+
+        // Setting an identical value may not run a ConVar's change callback. MAM ignores
+        // empty comma-delimited entries, so toggle a trailing delimiter to refresh the
+        // exact same addon list, without temporarily removing an addon or changing order.
+        return list.EndsWith(',') ? list.TrimEnd(',') : list + ",";
+    }
 }

@@ -99,6 +99,11 @@ internal sealed class ClassicMenuBackend : IMenuBackend
         return OpenInternal(player, menu, push: true);
     }
 
+    public MenuOpenResult ReplaceCurrent(IPlayer player, IMenuDefinition menu)
+    {
+        return OpenInternal(player, menu, push: true, replaceCurrent: true);
+    }
+
     public bool Back(IPlayer player)
     {
         lock (_sync)
@@ -264,7 +269,7 @@ internal sealed class ClassicMenuBackend : IMenuBackend
         Shutdown(MenuCloseReason.PluginUnload, keepAvailable: false);
     }
 
-    private MenuOpenResult OpenInternal(IPlayer player, IMenuDefinition menu, bool push)
+    private MenuOpenResult OpenInternal(IPlayer player, IMenuDefinition menu, bool push, bool replaceCurrent = false)
     {
         ArgumentNullException.ThrowIfNull(menu);
 
@@ -291,7 +296,8 @@ internal sealed class ClassicMenuBackend : IMenuBackend
         lock (_sync)
         {
             var hasSession = _sessions.TryGetValue(player.PlayerID, out var session);
-            var parentMenu = hasSession && session!.Stack.Count > 0 ? session.Stack[^1].Menu : null;
+            var previous = hasSession && session!.Stack.Count > 0 ? session.Stack[^1] : null;
+            var parentMenu = replaceCurrent ? previous?.Menu.Parent : previous?.Menu;
 
             if (!push || !hasSession || session!.Stack.Count == 0)
             {
@@ -355,7 +361,8 @@ internal sealed class ClassicMenuBackend : IMenuBackend
 
             if (session!.Stack.Count > 0)
             {
-                session.Stack[^1].SuppressClose = true;
+                session.Stack[^1].SuppressClose = !replaceCurrent;
+                if (replaceCurrent) session.Stack[^1].CloseReason = MenuCloseReason.Replaced;
             }
 
             session.Replacing = true;
@@ -370,6 +377,7 @@ internal sealed class ClassicMenuBackend : IMenuBackend
                 if (session.Stack.Count > 0)
                 {
                     session.Stack[^1].SuppressClose = false;
+                    session.Stack[^1].CloseReason = null;
                 }
 
                 _logger.LogError(exception, "[sws2-cs2menus] Failed to open submenu '{MenuId}'", menu.Id);

@@ -146,6 +146,11 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         return OpenInternal(player, menu, push: true);
     }
 
+    public MenuOpenResult ReplaceCurrent(IPlayer player, IMenuDefinition menu)
+    {
+        return OpenInternal(player, menu, push: true, replaceCurrent: true);
+    }
+
     public bool Back(IPlayer player)
     {
         lock (_sync)
@@ -280,7 +285,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         }
     }
 
-    private MenuOpenResult OpenInternal(IPlayer player, IMenuDefinition menu, bool push)
+    private MenuOpenResult OpenInternal(IPlayer player, IMenuDefinition menu, bool push, bool replaceCurrent = false)
     {
         if (!_available)
         {
@@ -317,6 +322,13 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 _sessions[player.PlayerID] = session;
             }
 
+            if (replaceCurrent && session!.Stack.Count > 0)
+            {
+                var previous = session.Stack[^1].Menu;
+                session.Stack.RemoveAt(session.Stack.Count - 1);
+                InvokeClosed(previous, player, MenuCloseReason.Replaced);
+                RaiseMenuClosed(player, previous, MenuCloseReason.Replaced);
+            }
             session!.Stack.Add(new MenuFrame { Menu = menu });
 
             if (!EnsureEntityLocked(session))
