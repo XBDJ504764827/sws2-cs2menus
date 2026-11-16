@@ -75,7 +75,7 @@ let activeCategory = 0;
 const item = (name, comment, action, danger=false, disabled=false) => ({name, comment, action, danger, disabled});
 function push(title, comment, items, layout='list') { stack.push({title,comment,items,layout,page:0}); render(); }
 function toast(message) { text('toast', '预览：'+message); $('toast').style.display='block'; clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('toast').style.display='none',3500); }
-function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else mapList(); }
+function selectCategory(index) { activeCategory=index; stack.length=0; if(index===0) players(); else if(index===1) mapList(); else banFilters(); }
 function home() { if(reservationMode) { stack.length=0; reservation(); } else selectCategory(0); }
 function reservation() {
  const ckzNub=[2,3,null,5,1,6,4,7,8], ckzPro=[3,null,4,6,2,7,5,8,9], vnlNub=[4,null,2,6,3,7,5,8,9], vnlPro=[5,6,null,7,4,8,6,9,10]; // Illustrative preview data, not real map ratings.
@@ -91,26 +91,51 @@ function actions(name) { push('操作: '+name,'当前目标 · '+name,[
  ...['处决','拍击（10 伤害）','重生','冻结（5 秒）','禁麦（默认时长）','禁言（默认时长）','沉默（默认时长）'].map(action=>item(action,'',()=>toast('已执行'+action+' · '+name))) ]); }
 function durations(name) { push('封禁: '+name,'选择封禁时长，下一步核对并确认。',['30 秒','60 秒','1 小时','1 天','3 天','7 天','30 天','永久'].map(duration=>item(duration,'',()=>confirm('封禁 '+name+'?','即将封禁 '+name+'，时长：'+duration+'。确认后将断开连接并限制加入服务器。','确认封禁',()=>{toast('已封禁 '+name+' · '+duration);home();},true)))); }
 function mapList() {
- const items=maps.map(([name,id])=>item(name,'CKZ NUB ? / PRO ? | VNL NUB ? / PRO ? · Workshop ID: '+id,()=>confirm(
+ const items=maps.map(([name,id])=>({...item(name,'CKZ NUB ? / PRO ? | VNL NUB ? / PRO ? · Workshop ID: '+id,()=>confirm(
   '更换地图至 '+name+'?',
   '将切换至 '+name+'（'+id+'）。确认后开始 3 秒倒计时；未安装的工坊地图会先下载。',
   '确认更换地图',
   ()=>{toast('开始换图 · '+name);selectCategory(1);}
- )));
- push('地图管理','从配置的地图中选择。未安装的工坊地图会在确认后按需下载。',items);
+ )),map:true,workshopId:id}));
+ push('地图管理','从配置的地图中选择。未安装的工坊地图会在确认后按需下载。',items,'map-picker');
+}
+// Sample history only; the native plugin queries SQLite asynchronously in bounded pages.
+const banStatuses=['有效封禁','永久封禁','临时封禁','已过期','已解封','全部记录'];
+const banHistory=Array.from({length:11},(_,i)=>({name:['山海','Alice','夜航星'][i%3]+' '+(i+1),steam:'76561198000000'+String(i+10).padStart(3,'0'),reason:'违反服务器规则',admin:'XBDJ',status:i<4?1:i<7?2:i<9?3:4}));
+function banFilters() { push('封禁管理','搜索：!bans 昵称或SteamID --status=all；可组合管理员与日期条件。',banStatuses.map((name,status)=>item(name,'',()=>banResults(status,0)))); }
+function banResults(status,page) {
+ const records=banHistory.filter(x=>status===5||(status===0?x.status<3:x.status===status)), pages=Math.max(1,Math.ceil(records.length/3));
+ const items=records.slice(page*3,page*3+3).map(ban=>item(ban.name+' · '+ban.steam,ban.reason+' · '+ban.admin,()=>banDetails(ban)));
+ if(!items.length) items.push(item('没有符合条件的封禁记录','',()=>{},false,true));
+ function move(next) { stack.pop(); banResults(status,next); }
+ if(page>0) items.push(item('上一批记录','',()=>move(page-1)));
+ if(page+1<pages) items.push(item('下一批记录','',()=>move(page+1)));
+ push('封禁管理',banStatuses[status]+' · '+records.length+' 条记录 · 第 '+(page+1)+' / '+pages+' 页',items);
+}
+function banDetails(ban) {
+ const items=[];
+ if(ban.status<3) items.push(item('解封此玩家','核对记录并选择解封原因',()=>unbanReasons(ban)));
+ for(const [name,value] of [['封禁原因',ban.reason],['执行管理员',ban.admin+' · 76561198000000001'],['封禁时间','2026-11-14 21:00:00'],['到期时间',ban.status===1?'永久':'2026-11-21 21:00:00']]) items.push(item(name,value,()=>{},false,true));
+ push(ban.name,'SteamID: '+ban.steam,items);
+}
+function unbanReasons(ban) {
+ const items=['误封纠正','申诉通过','管理员复核'].map(reason=>item(reason,'',()=>{
+  confirm('解封此玩家','玩家：'+ban.name+' · '+ban.steam+'。原因：'+reason+'。','确认解封',()=>{ban.status=4;toast('已解封 '+ban.name);selectCategory(2);});
+ }));
+ push('解封此玩家','选择解封原因；自定义原因：!unban SteamID 原因。',items);
 }
 function confirm(title, comment, label, action, danger=false) { push(title,comment,[item(label,'',action,danger),item('取消','返回上一步',()=>{stack.pop();render();})],'confirmation'); }
 function render() {
- const frame=stack.at(-1), size=reservationMode?4:5, pages=Math.ceil(frame.items.length/size), rows=frame.items.slice(frame.page*size,(frame.page+1)*size);
+ const frame=stack.at(-1), size=frame.layout==='map-picker'?4:5, pages=Math.ceil(frame.items.length/size), rows=frame.items.slice(frame.page*size,(frame.page+1)*size);
  $('sw_root').className=(reservationMode?'':'sidebar ')+frame.layout;
  $('sw_sidebar').classList.toggle('hidden',reservationMode);
  text('sw_brand',reservationMode?'预定下一张地图':'管理员面板'); text('sw_operator','XBDJ'); text('sw_context', [reservationMode?'地图预定':'管理员面板',...stack.map(x=>x.title)].slice(-3).join('  /  '));
  text('sw_navigation','管理功能'); text('sw_sidebar_hint','选择功能，切换右侧操作内容。');
  for(let i=0;i<5;i++) {
-  const el=$('sw_category'+i); el.className='category'+(i>1?' hidden':'')+(i===activeCategory?' selected':'');
-  if(i<2) { text('sw_category'+i+'_text',i===0?'玩家操作':'地图管理'); el.onclick=()=>selectCategory(i); }
+  const el=$('sw_category'+i); el.className='category'+(i>2?' hidden':'')+(i===activeCategory?' selected':'');
+  if(i<3) { text('sw_category'+i+'_text',['玩家操作','地图管理','封禁管理'][i]); el.onclick=()=>selectCategory(i); }
  }
- text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':reservationMode?'可预定地图 · NUB 存点 / PRO 裸跳':'可用操作');
+ text('sw_title',frame.title); text('sw_comment_text',frame.comment); text('sw_count',frame.items.length+' 个选项'); text('sw_section',frame.layout==='confirmation'?'请核对操作信息':frame.layout==='map-picker'?'地图列表 · NUB 存点 / PRO 裸跳':'可用操作');
  text('sw_page',(frame.page+1)+' / '+pages); text('sw_footer','点击选项继续操作'); text('sw_home_text','首页'); text('sw_back_text','返回'); text('sw_close_text','关闭'); text('sw_prev_text','上一页'); text('sw_next_text','下一页');
  for(let i=0;i<5;i++) {
   const row=rows[i], el=$('sw_item'+i); el.className='item'+(!row?' hidden':'')+(row?.danger?' destructive':'')+(row?.disabled?' disabled':'')+(row?.map?' map-row':''); el.disabled=!row||!!row.disabled;

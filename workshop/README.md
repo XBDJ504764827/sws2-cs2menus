@@ -11,10 +11,10 @@ workshop/
     └── images/custom_game/sws2cs2menus/maps/*.jpg
 ```
 
-The layout provides a centered 980 × 660 text-only window on CS2's 1080-high
+The layout provides a centered 980 × 660 window (1160 × 660 for maps with a sidebar) on CS2's 1080-high
 HUD canvas. A 214-pixel category column stays on the left while the right pane
 shows the active list, player action menu or confirmation. Navigation and paging
-stay at the bottom of the right pane. The administrator panel has no images or icons. A separate map picker layout can show optional map screenshots and independent CKZ NUB/PRO and VNL NUB/PRO ratings.
+stay at the bottom of the right pane. Player and ban pages are text-only. Both administrator Map management and `!yd` use the map picker layout with shared screenshots and independent CKZ NUB/PRO and VNL NUB/PRO ratings. No decorative icons are used.
 
 The `!o` menu in cs2kz-metamod was used as an interaction reference; this addon
 has its own XML, CSS and server contract. Keep `sw_category0`–`sw_category4` and
@@ -63,53 +63,41 @@ Keep the directory names exactly as shown. The server writes panel IDs such as
 
 Public or unlisted visibility both work, as long as clients can download it.
 
-## 4. Mount it with MultiAddonManager
+## 4. Register the ID once for automatic mounting
 
-Edit:
+Install MultiAddonManager, then set menus' `Menu.HudLayoutWorkshopId` to the
+published ID and leave `AutoMountHudAddon` enabled. Alternatively, package
+`resources/hud-addon.json` with `{ "WorkshopId": "1234567890" }` as the plugin's
+default (replace the example with your real ID). A nonempty config value wins.
+The distributed manifest currently has an empty ID until you register your addon.
 
-```text
-game/csgo/cfg/multiaddonmanager/multiaddonmanager.cfg
-```
-
-Add the ID to `mm_extra_addons`, keeping any existing IDs:
-
-```text
-mm_extra_addons "3801628903,3469155349,1234567890"
-```
-
-- `3801628903` is the mm-cs2menus addon, if used.
-- `3469155349` is the cs2kz addon, if used.
-- Replace `1234567890` with your new addon ID.
-
-Restart the server or change the map so MultiAddonManager mounts the addon.
-Clients will download it automatically on connect.
+Menus waits for MAM and runs `mm_add_addon <id>`, preserving unrelated addon IDs.
+You no longer need to add the HUD ID to `mm_extra_addons` by hand. The existing
+MultiAddonManager config may keep IDs used by other addons.
+The same Workshop item retains its ID across updates. Steam/Workshop download
+access and CS2 client downloads are still required. Reconnect clients after an update.
 
 ## 5. Enable the HUD backend
 
-Edit the plugin config:
-
-```text
-game/csgo/addons/swiftlys2/configs/plugins/sws2-cs2menus/config.jsonc
-```
-
-Set:
+In `game/csgo/addons/swiftlys2/configs/plugins/sws2-cs2menus/config.jsonc`:
 
 ```jsonc
 "Menu": {
-  "Backend": "hudlayout",
-  "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c"
+  "Backend": "auto",
+  "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
+  "HudLayoutWorkshopId": "1234567890", // replace with your published ID
+  "AutoMountHudAddon": true
 }
 ```
 
-`auto` uses `hudlayout` only when the layout is already mounted when the plugin
-loads. `hudlayout` forces the custom HUD backend. `classic` forces the old center
-HTML menu.
+Both `auto` and `hudlayout` use center HTML while resources are absent, then switch
+to Custom HUD once the layout is mounted. `classic` keeps the center-HTML renderer
+and disables automatic addon registration. Checks run every five seconds and on
+map load; failed registrations retry at most every 30 seconds.
 
-Reload `sws2-cs2menus` or restart the server, then run:
-
-```text
-!menudemo
-```
+Check `sw_hudstatus` in the server console, then reopen `!menudemo` or `!admin`.
+For unpublished local compiled-resource testing, set `AutoMountHudAddon: false`
+and mount your local compiled addon on both server and client as before.
 
 ## 6. Test checklist
 
@@ -120,7 +108,7 @@ Reload `sws2-cs2menus` or restart the server, then run:
 - `!menudemo` opens the HUD.
 - The centered panel appears with a short fade/slide animation.
 - `!admin` selects the first permitted category and displays its content on the right.
-- Player actions / Map management remain visible on the left in all child pages.
+- Player actions / Map management / Ban management remain visible on the left in all child pages.
 - Switching category from a confirmation page does not execute the pending action.
 - Kicks / bans show the target and duration before confirmation.
 - Back inside a category preserves the previous page; category roots have no Back action.
@@ -153,8 +141,9 @@ The browser preview is an approximation and cannot validate Panorama compilation
 
 ### Layout not found with `auto`
 
-Set `Backend` to `hudlayout` explicitly, or restart the plugin after the addon is
-mounted. The `auto` check runs when `sws2-cs2menus` loads.
+Run `sw_hudstatus` in the server console. Check the registered ID, MAM installation,
+download status and layout path. Availability is rechecked periodically; reopen the
+menu after the renderer switches. Reconnect if client resources are stale.
 
 ## Map reservation pictures
 
@@ -162,10 +151,9 @@ mounted. The `auto` check runs when `sws2-cs2menus` loads.
 map names, separate CKZ NUB/PRO and VNL NUB/PRO badges, local screenshot backgrounds and text
 selection buttons. Unrated categories and maps without screenshots each have an
 explicit placeholder. All panels remain Panel/Label/Button; no Image element or
-client script is required. The admin sidebar never displays these pictures.
+client script is required. Administrator Map management uses exactly the same MapPicker assets and keys; the left category column remains text-only.
 
-The source includes Workshop previews for the 15 maps in mapmanager's
-`resources/templates/map-catalog.example.jsonc`. Generate pictures for another
+The source includes packaged Workshop previews. Add screenshots for your full mapmanager catalog before publishing. Generate pictures for another
 catalog from the menus repository:
 
 ```sh

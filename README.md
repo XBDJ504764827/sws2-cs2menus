@@ -14,7 +14,7 @@ Whitelist and RockTheVote consume the same menu service instead of writing
 their own pagination, navigation, permission and cleanup code.
 
 The primary renderer is SwiftlyS2 Custom HUD (`custom_hud_layout`) with a
-companion Panorama addon. It renders a dark text-only window with persistent
+companion Panorama addon. It renders a dark window with persistent
 categories on the left and the active page on the right. The optional center-HTML
 fallback uses `Core.Menu`.
 
@@ -37,12 +37,12 @@ fallback uses `Core.Menu`.
 ## New administrator HUD
 
 `!admin` in `sws2-cs2admin` opens a two-pane window: **Player actions** and
-**Map management** remain in the left category column while lists, player actions
+**Map management** and **Ban management** remain in the left category column while lists, player actions
 and confirmations appear on the right. The first permitted category opens
 automatically. Switching categories discards that category's pending navigation
 and rebuilds its live players/maps; Back inside a category preserves its page.
 The layout takes its category/right-pane interaction from cs2kz's `!o` menu and
-uses original text-only styling without image or icon assets.
+uses original text styling without decorative icons. Map management shares `!yd` screenshots and four rating badges; player and ban pages use text.
 Kicks and bans use a separate confirmation screen; map changes use mapmanager's
 existing countdown, download and change flow. The HUD only captures input while
 open, and each administrator receives an independent panel.
@@ -76,6 +76,7 @@ csgo/addons/swiftlys2/plugins/
     ├── sws2-cs2menus.dll
     ├── Sws2Cs2Menus.Contracts.dll
     └── resources/
+        ├── hud-addon.json
         ├── exports/Sws2Cs2Menus.Contracts.dll
         ├── templates/config.template.jsonc
         └── translations/
@@ -91,6 +92,7 @@ loads it once as a shared assembly so every consumer plugin uses the same types.
 | Command | Description |
 | :--- | :--- |
 | `!menudemo` / `!menutest` | Open the demo menu |
+| `sw_hudstatus` (server console) | Check addon registration and selected renderer |
 
 The demo is intended for testing the service; it can be disabled in the config.
 
@@ -114,6 +116,7 @@ template. The file is hot-reloaded.
       "Backend": "auto",
       "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
       "HudLayoutWorkshopId": "",
+      "AutoMountHudAddon": true,
       "Colors": {
         "Title": "#70E0C4",
         "Comment": "#91A8B5",
@@ -134,7 +137,7 @@ template. The file is hot-reloaded.
 `Backend` selects the renderer:
 
 - `auto`: use `custom_hud_layout` when `HudLayoutPath` is mounted, otherwise center HTML
-- `hudlayout`: force the custom HUD renderer
+- `hudlayout`: prefer Custom HUD, temporarily use center HTML until resources are mounted
 - `classic`: force the SwiftlyS2 center-HTML renderer
 
 The custom HUD backend requires the Panorama addon from [`workshop/`](workshop/)
@@ -142,8 +145,32 @@ to be mounted on clients through MultiAddonManager. See
 [`workshop/README.md`](workshop/README.md) for the complete Workshop Tools and
 MultiAddonManager procedure.
 
-`HudLayoutWorkshopId` is informational for now; add the published ID to
-MultiAddonManager's `mm_extra_addons`.
+With `AutoMountHudAddon: true` (default), menus registers its HUD addon through
+MultiAddonManager's public `mm_add_addon` command. Other addon IDs are preserved;
+no config file is rewritten. Install MultiAddonManager on the server first.
+
+Register the published ID **once** in `Menu.HudLayoutWorkshopId`, or put it in
+`plugins/sws2-cs2menus/resources/hud-addon.json` as the distribution default:
+
+```json
+{ "WorkshopId": "YOUR_NUMERIC_WORKSHOP_ID" }
+```
+
+The config value overrides the manifest. The supplied manifest is intentionally
+empty because this repository does not know your published item's real ID.
+The ID cannot be inferred reliably from an addon title or local layout path.
+Updating the same Workshop item keeps its ID, so subsequent releases need no edits
+to `mm_extra_addons`. When distributing a plugin release, include your registered
+manifest again so an upgrade cannot replace it with an empty default.
+
+The plugin checks every five seconds and on map load/config reload. Missing MAM
+or pending downloads are retried; registration commands are rate-limited to 30 seconds.
+`auto` and `hudlayout` switch to Custom HUD after the layout becomes available.
+Switching renderers closes existing menus; reopen `!admin` / `!yd` afterward.
+Clients may need to reconnect after a first mount or addon update.
+Use server command `sw_hudstatus` to inspect registration and renderer status.
+For local compiled-resource testing, set `AutoMountHudAddon` to `false`.
+Disabling/unloading does not remove addons shared with other plugins.
 
 ## Using the menu service
 
@@ -304,7 +331,7 @@ map unloads, or the plugin is unloaded.
 `.Tag(new MapMenuOptionAppearance(map.CkzNubTier, map.CkzProTier, map.VnlNubTier, map.VnlProTier, map.Id))` for independent
 CKZ NUB/PRO and VNL NUB/PRO badges and a packaged thumbnail keyed by the stable map ID. Missing ratings
 show an unknown label for that category, and missing pictures show a placeholder.
-Only this layout displays map screenshots; the administrator sidebar stays text-only.
+Both `!yd` and administrator Map management use this layout and the same screenshot assets. The left category column remains text-only.
 Generate screenshots with `tools/build_map_thumbnails.py` before compiling the addon;
 see [map picture instructions](workshop/README.md#map-reservation-pictures).
 

@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Automatic HUD mounting and administrator maps
+
+- Register the HUD Workshop ID once in config or the packaged manifest, then append it through MultiAddonManager without replacing other addons.
+- Wait for late-loaded MAM/downloaded layouts, retry registration and switch the shared backend once resources are available.
+- Add server-only `sw_hudstatus` diagnostics and a local-development opt-out.
+- Widen the sidebar map page to fit shared screenshots and four rating badges; extend the preview with ban management.
+
 ### NUB / PRO ratings
 
 - Display four independent CKZ/VNL NUB/PRO badges in a two-by-two grid, with a localized checkpoints/no-checkpoints legend and separate unknown values.

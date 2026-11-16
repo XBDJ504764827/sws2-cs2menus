@@ -12,6 +12,14 @@ namespace Sws2Cs2Menus;
 /// </summary>
 public partial class Sws2Cs2Menus
 {
+    [Command("hudstatus", true, "", "Report HUD resource registration (server console only)")]
+    public void HudStatusCommand(ICommandContext context)
+    {
+        if (context.IsSentByPlayer) return;
+        CheckHudResources();
+        context.Reply($"[sws2-cs2menus] {_hudAddon.Status}; renderer={(_menus.UsesHud ? "hudlayout" : "classic")}");
+    }
+
     private const string DemoAdminPermission = "sws2.cs2menus.demo.admin";
 
     [Command("menudemo", true, "", "Open the sws2-cs2menus demo menu")]

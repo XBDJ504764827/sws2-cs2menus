@@ -101,3 +101,5 @@ Label { font-family: "Stratum2", "Noto Sans CJK SC", "Microsoft YaHei", sans-ser
 .map-tiers { width: 300px; vertical-align: center; margin-left: 20px; flow-children: down; }
 .map-tier-pair { width: 100%; flow-children: right; }
 .map-tier { width: fill-parent-flow(1); margin: 2px 4px; padding: 3px 8px; border: 1px solid #98c8bc30; border-radius: 3px; color: #a8c4ba; font-size: 12px; text-align: center; white-space: nowrap; }
+
+.sidebar.map-picker .menu-box { width: 1160px; }

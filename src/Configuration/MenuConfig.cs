@@ -50,6 +50,9 @@ public sealed class MenuDefaults
     /// <summary>Workshop addon id for the HUD layout, when published.</summary>
     public string HudLayoutWorkshopId { get; set; } = string.Empty;
 
+    /// <summary>Append the configured or packaged HUD addon through MultiAddonManager.</summary>
+    public bool AutoMountHudAddon { get; set; } = true;
+
     /// <summary>Color settings shared by all menus.</summary>
     public MenuColors Colors { get; set; } = new();
 

@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="resources/templates/**/*;resources/translations/**/*">
+    <Content Include="resources/templates/**/*;resources/translations/**/*;resources/hud-addon.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Remove="contracts\**\*.cs" />
     <Compile Remove="examples\**\*.cs" />
+    <Compile Remove="tests\**\*.cs" />
   </ItemGroup>
 
   <Target Name="PrepareContracts">
