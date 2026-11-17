@@ -96,6 +96,8 @@ internal sealed class HudLayoutMenuService : IMenuBackend
 
     public bool IsAvailable => _available;
 
+    public bool IsCustomHudAvailable => _available && IsLayoutAvailable(_core, _config);
+
     public event EventHandler<MenuSessionEventArgs>? MenuOpened;
 
     public event EventHandler<MenuSessionEventArgs>? MenuClosed;

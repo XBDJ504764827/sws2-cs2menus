@@ -110,6 +110,9 @@ jobs:
       - name: Run AddonChecks regression checks
         run: dotnet run --project tests/AddonChecks/AddonChecks.csproj -c Release
 
+      - name: Run HUD capability regression checks
+        run: dotnet run --project tests/HudChecks/HudChecks.csproj -c Release
+
       - name: Verify formatting and analyzers
         run: dotnet format sws2-cs2menus.sln --verify-no-changes --no-restore --severity warn
 

@@ -346,3 +346,7 @@ is only a fallback for local builds.
 ## Refreshing a live page
 
 `IMenuService.ReplaceCurrent(player, definition)` replaces the displayed page while preserving its parent and sidebar selection. Permission/player/visible-option validation runs before replacement; without a session it opens a root. Both HUD and classic backends implement this operation. Admin map controls use it to refresh status after cancel/pause/resume without growing the navigation stack. Upgrade consumer plugins with the matching contract DLL.
+
+### Requiring the new CS2 HUD
+
+`IMenuService.IsCustomHudAvailable` reports whether the active renderer is ready and the compiled Panorama layout is mounted. Consumers that require the new HUD should check it before opening menus; `IsAvailable` alone also accepts the classic center HTML backend. Older providers return false by default. Backend switches close existing sessions. Armory requires this capability; deploy the matching updated menus package and contract DLL together.

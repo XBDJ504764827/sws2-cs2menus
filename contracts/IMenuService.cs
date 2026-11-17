@@ -80,6 +80,10 @@ public interface IMenuService
     /// <summary>Whether the service is loaded and can open menus.</summary>
     bool IsAvailable { get; }
 
+    /// <summary>Whether the active renderer is the mounted CS2 Custom HUD and can open menus.
+    /// Older providers default to false so consumers that require this renderer can fail closed.</summary>
+    bool IsCustomHudAvailable => false;
+
     /// <summary>Raised after a menu is displayed for a player.</summary>
     event EventHandler<MenuSessionEventArgs>? MenuOpened;
 

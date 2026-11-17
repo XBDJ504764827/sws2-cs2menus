@@ -11,7 +11,7 @@ internal sealed class MenuServiceProxy : IMenuBackend
 {
     private IMenuBackend _backend;
 
-    public bool UsesHud => _backend is HudLayoutMenuService;
+    public bool UsesHud => _backend.IsCustomHudAvailable;
 
     public MenuServiceProxy(IMenuBackend backend)
     {
@@ -35,6 +35,8 @@ internal sealed class MenuServiceProxy : IMenuBackend
     }
 
     public bool IsAvailable => _backend.IsAvailable;
+
+    public bool IsCustomHudAvailable => IsAvailable && UsesHud;
 
     public event EventHandler<MenuSessionEventArgs>? MenuOpened;
 

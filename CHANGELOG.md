@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Custom HUD capability
+
+- Expose `IMenuService.IsCustomHudAvailable` through the active renderer, including mounted-layout readiness. Older providers default to false.
+- Allow consumers such as armory to require the new HUD while other consumers retain their configured backend.
+- Add regression checks for classic fallback, backend switches, readiness loss and shutdown.
+
 ### Live page replacement
 
 - Add ReplaceCurrent to the shared API and both renderers, preserving parent navigation and sidebar selection for administrator status refresh.
