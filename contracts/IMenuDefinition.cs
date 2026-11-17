@@ -45,6 +45,9 @@ public interface IMenuDefinition
     /// <summary>Optional comment shown under the title.</summary>
     string? Comment { get; }
 
+    /// <summary>Visual arrangement; existing consumers default to a list.</summary>
+    MenuLayout Layout => MenuLayout.List;
+
     /// <summary>Maximum number of options shown on one page (1-5).</summary>
     int PageSize { get; }
 
@@ -80,6 +83,9 @@ public interface IMenuOptionDefinition
 
     /// <summary>Optional comment displayed while the option is highlighted.</summary>
     string? Comment { get; }
+
+    /// <summary>Optional HTTPS image URL shown beside the option in the HUD layout renderer.</summary>
+    string? ImageUrl { get; }
 
     /// <summary>Optional text colour in #RRGGBB format.</summary>
     string? Color { get; }

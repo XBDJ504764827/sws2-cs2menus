@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
+using SwiftlyS2.Shared.Events;
 using SwiftlyS2.Shared.Plugins;
 using Sws2Cs2Menus.Configuration;
 using Sws2Cs2Menus.Contracts;
@@ -19,6 +20,8 @@ public partial class Sws2Cs2Menus : BasePlugin
     private MenuServiceProxy _menus = null!;
     private ServiceProvider _provider = null!;
     private IDisposable? _configSubscription;
+    private HudAddonMountService _hudAddon = null!;
+    private CancellationTokenSource? _mountCheck;
 
     private volatile bool _loaded;
 
@@ -45,6 +48,15 @@ public partial class Sws2Cs2Menus : BasePlugin
         _config = options.CurrentValue;
 
         _menus = new MenuServiceProxy(CreateBackend(Core, _config));
+        _hudAddon = new HudAddonMountService(Path.Combine(Core.PluginPath, "resources", "hud-addon.json"), Core.Logger,
+            () => Core.ConVar.FindAsString("mm_extra_addons")?.ValueAsString,
+            value =>
+            {
+                // Assign through the engine's console path, so MAM's native change callback
+                // runs. SwiftlyS2's direct ConVar setters can bypass callbacks. MountList
+                // validates the entire value before it is embedded into this command.
+                Core.Engine.ExecuteCommand($"mm_extra_addons \"{value}\"\n");
+            }, config => HudLayoutMenuService.IsLayoutAvailable(Core, config));
 
         _configSubscription = options.OnChange(newConfig =>
         {
@@ -55,8 +67,14 @@ public partial class Sws2Cs2Menus : BasePlugin
                     return;
                 }
 
+                var previous = _config;
                 _config = newConfig;
                 _menus.ApplyConfig(newConfig);
+                if (previous.Menu.Backend != newConfig.Menu.Backend || previous.Menu.HudLayoutPath != newConfig.Menu.HudLayoutPath
+                    || previous.Menu.HudLayoutWorkshopId != newConfig.Menu.HudLayoutWorkshopId)
+                    _menus.ReplaceBackend(CreateBackend(Core, newConfig));
+                _hudAddon.Reset();
+                CheckHudResources();
 
                 Core.Logger.LogInformation(
                     "[sws2-cs2menus] Configuration reloaded (page size: {PageSize}, sounds: {Sounds})",
@@ -67,10 +85,30 @@ public partial class Sws2Cs2Menus : BasePlugin
 
         Core.Event.OnClientDisconnected += OnClientDisconnected;
         Core.Event.OnMapUnload += OnMapUnload;
+        Core.Event.OnMapLoad += OnHudMapLoad;
 
         _loaded = true;
+        _mountCheck = Core.Scheduler.DelayAndRepeatBySeconds(1, 5, CheckHudResources);
 
         Core.Logger.LogInformation("[sws2-cs2menus] Plugin loaded (hotReload: {HotReload})", hotReload);
+    }
+
+    private void OnHudMapLoad(IOnMapLoadEvent @event)
+    {
+        _hudAddon.Reset();
+        Core.Scheduler.NextTick(CheckHudResources);
+    }
+
+    private void CheckHudResources()
+    {
+        if (!_loaded) return;
+        _hudAddon.Check(_config);
+        if (!string.Equals(_config.Menu.Backend, "classic", StringComparison.OrdinalIgnoreCase)
+            && !_menus.UsesHud && HudLayoutMenuService.IsLayoutAvailable(Core, _config))
+        {
+            _menus.ReplaceBackend(new HudLayoutMenuService(Core, _config));
+            Core.Logger.LogInformation("[sws2-cs2menus] HUD resources became available; switched shared menus to Custom HUD");
+        }
     }
 
     public override void ConfigureSharedInterface(IInterfaceManager interfaceManager)
@@ -96,19 +134,6 @@ public partial class Sws2Cs2Menus : BasePlugin
         }
 
         var hud = new HudLayoutMenuService(core, config);
-        if (mode == "hudlayout")
-        {
-            if (!HudLayoutMenuService.IsLayoutAvailable(core, config))
-            {
-                core.Logger.LogWarning(
-                    "[sws2-cs2menus] HUD layout backend forced, but layout was not found: {Path}",
-                    config.Menu.HudLayoutPath);
-            }
-
-            core.Logger.LogInformation("[sws2-cs2menus] Using custom_hud_layout menu backend");
-            return hud;
-        }
-
         if (HudLayoutMenuService.IsLayoutAvailable(core, config))
         {
             core.Logger.LogInformation("[sws2-cs2menus] Using custom_hud_layout menu backend");
@@ -128,6 +153,9 @@ public partial class Sws2Cs2Menus : BasePlugin
 
         Core.Event.OnClientDisconnected -= OnClientDisconnected;
         Core.Event.OnMapUnload -= OnMapUnload;
+        Core.Event.OnMapLoad -= OnHudMapLoad;
+        _mountCheck?.Cancel();
+        _mountCheck = null;
 
         _configSubscription?.Dispose();
         _configSubscription = null;

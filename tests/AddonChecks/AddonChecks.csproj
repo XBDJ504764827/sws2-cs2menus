@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Compile Include="../../src/Services/HudAddonSettings.cs" Link="HudAddonSettings.cs" />
+    <Compile Include="../../src/Services/HudAddonMountService.cs" Link="HudAddonMountService.cs" />
+    <Compile Include="../../src/Configuration/MenuConfig.cs" Link="MenuConfig.cs" />
+  </ItemGroup>
+</Project>

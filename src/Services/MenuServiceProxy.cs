@@ -9,13 +9,29 @@ namespace Sws2Cs2Menus.Services;
 /// </summary>
 internal sealed class MenuServiceProxy : IMenuBackend
 {
-    private readonly IMenuBackend _backend;
+    private IMenuBackend _backend;
+
+    public bool UsesHud => _backend is HudLayoutMenuService;
 
     public MenuServiceProxy(IMenuBackend backend)
     {
         _backend = backend;
-        _backend.MenuOpened += (_, args) => MenuOpened?.Invoke(this, args);
-        _backend.MenuClosed += (_, args) => MenuClosed?.Invoke(this, args);
+        _backend.MenuOpened += ForwardOpened;
+        _backend.MenuClosed += ForwardClosed;
+    }
+
+    private void ForwardOpened(object? sender, MenuSessionEventArgs args) => MenuOpened?.Invoke(this, args);
+    private void ForwardClosed(object? sender, MenuSessionEventArgs args) => MenuClosed?.Invoke(this, args);
+
+    public void ReplaceBackend(IMenuBackend backend)
+    {
+        _backend.CloseAll();
+        _backend.MenuOpened -= ForwardOpened;
+        _backend.MenuClosed -= ForwardClosed;
+        _backend.Dispose();
+        _backend = backend;
+        _backend.MenuOpened += ForwardOpened;
+        _backend.MenuClosed += ForwardClosed;
     }
 
     public bool IsAvailable => _backend.IsAvailable;
@@ -29,6 +45,8 @@ internal sealed class MenuServiceProxy : IMenuBackend
     public MenuOpenResult Open(IPlayer player, IMenuDefinition menu) => _backend.Open(player, menu);
 
     public MenuOpenResult OpenSubMenu(IPlayer player, IMenuDefinition menu) => _backend.OpenSubMenu(player, menu);
+
+    public MenuOpenResult ReplaceCurrent(IPlayer player, IMenuDefinition menu) => _backend.ReplaceCurrent(player, menu);
 
     public bool Back(IPlayer player) => _backend.Back(player);
 

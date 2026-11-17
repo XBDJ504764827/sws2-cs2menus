@@ -11,6 +11,9 @@ public interface IMenuBuilder
     /// <summary>Sets an optional comment shown under the title.</summary>
     IMenuBuilder Comment(string? comment);
 
+    /// <summary>Selects a list, dashboard, confirmation, sidebar or map picker layout.</summary>
+    IMenuBuilder Layout(MenuLayout layout) => this;
+
     /// <summary>Sets the number of options per page. Values are clamped to 1-5.</summary>
     IMenuBuilder PageSize(int pageSize);
 
@@ -58,6 +61,9 @@ public interface IMenuOptionBuilder
 
     /// <summary>Sets an optional comment.</summary>
     IMenuOptionBuilder Comment(string? comment);
+
+    /// <summary>Sets an optional HTTPS image URL for HUD layout renderers.</summary>
+    IMenuOptionBuilder Image(string? imageUrl);
 
     /// <summary>Sets the text colour in #RRGGBB format.</summary>
     IMenuOptionBuilder Color(string? hexColor);

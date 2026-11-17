@@ -102,6 +102,10 @@ public interface IMenuService
     /// </summary>
     MenuOpenResult OpenSubMenu(IPlayer player, IMenuDefinition menu);
 
+    /// <summary>Replaces the displayed page while preserving its parent and sidebar selection.
+    /// Opens a root menu when there is no active session.</summary>
+    MenuOpenResult ReplaceCurrent(IPlayer player, IMenuDefinition menu);
+
     /// <summary>
     /// Navigates back one level. Returns false when the player is already at the root,
     /// in which case the caller may close the menu explicitly.

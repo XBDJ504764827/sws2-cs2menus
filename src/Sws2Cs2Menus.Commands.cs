@@ -2,6 +2,7 @@ using SwiftlyS2.Shared.Commands;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.Translation;
 using Sws2Cs2Menus.Contracts;
+using Sws2Cs2Menus.Services;
 
 namespace Sws2Cs2Menus;
 
@@ -12,6 +13,16 @@ namespace Sws2Cs2Menus;
 /// </summary>
 public partial class Sws2Cs2Menus
 {
+    [Command("hudstatus", false, "", "Report HUD resource registration (server console only)")]
+    [CommandAlias("hudstatus", registerRaw: true)]
+    public void HudStatusCommand(ICommandContext context)
+    {
+        if (context.IsSentByPlayer) return;
+        CheckHudResources();
+        context.Reply($"[sws2-cs2menus] {_hudAddon.Status}; renderer={(_menus.UsesHud ? "hudlayout" : "classic")}");
+        context.Reply($"[sws2-cs2menus] mm_extra_addons={Core.ConVar.FindAsString("mm_extra_addons")?.ValueAsString ?? "<unavailable>"}; layout={_config.Menu.HudLayoutPath}; layoutReady={HudLayoutMenuService.IsLayoutAvailable(Core, _config)}");
+    }
+
     private const string DemoAdminPermission = "sws2.cs2menus.demo.admin";
 
     [Command("menudemo", true, "", "Open the sws2-cs2menus demo menu")]
@@ -88,6 +99,8 @@ public partial class Sws2Cs2Menus
         }
 
         rootBuilder.AddSubMenu("submenu", localizer["cs2menus.demo.submenu"], subMenu);
+        rootBuilder.AddSubMenu("players", localizer["cs2menus.demo.players"], BuildDemoPlayersMenu(localizer));
+        rootBuilder.AddSubMenu("maps", localizer["cs2menus.demo.maps"], BuildDemoMapsMenu(localizer));
 
         rootBuilder.AddOption(option => option
             .Id("disabled")
@@ -114,6 +127,76 @@ public partial class Sws2Cs2Menus
 
         return rootBuilder.Build();
     }
+
+    private IMenuDefinition BuildDemoPlayersMenu(ILocalizer localizer)
+    {
+        var builder = _menus.CreateMenu(localizer["cs2menus.demo.players.title"])
+            .Id("demo.players")
+            .Comment(localizer["cs2menus.demo.players.comment"])
+            .PageSize(5)
+            .ShowBack()
+            .CloseOnSelect(false);
+
+        var players = Core.PlayerManager.GetAllValidPlayers()
+            .Where(player => !player.IsFakeClient)
+            .OrderBy(player => player.Name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (players.Length == 0)
+        {
+            builder.AddOption(option => option
+                .Id("empty")
+                .Text(localizer["cs2menus.demo.players.none"])
+                .Disabled());
+            return builder.Build();
+        }
+
+        foreach (var target in players)
+        {
+            var name = target.Name;
+            builder.AddOption(option => option
+                .Id($"player-{target.PlayerID}")
+                .Text(name)
+                .Comment($"#{target.PlayerID} | {target.SteamID}")
+                .OnSelected(context => context.Player.SendChat(
+                    $"{localizer["cs2menus.prefix"]} {localizer["cs2menus.demo.players.selected", name]}")));
+        }
+
+        return builder.Build();
+    }
+
+    private IMenuDefinition BuildDemoMapsMenu(ILocalizer localizer)
+    {
+        var builder = _menus.CreateMenu(localizer["cs2menus.demo.maps.title"])
+            .Id("demo.maps")
+            .Comment(localizer["cs2menus.demo.maps.comment"])
+            .PageSize(5)
+            .ShowBack()
+            .CloseOnSelect(false);
+
+        foreach (var map in DemoMaps)
+        {
+            var mapName = map;
+            builder.AddOption(option => option
+                .Id($"map-{mapName}")
+                .Text(mapName)
+                .OnSelected(context => context.Player.SendChat(
+                    $"{localizer["cs2menus.prefix"]} {localizer["cs2menus.demo.maps.selected", mapName]}")));
+        }
+
+        return builder.Build();
+    }
+
+    private static readonly string[] DemoMaps =
+    [
+        "de_dust2",
+        "de_mirage",
+        "de_inferno",
+        "de_ancient",
+        "de_nuke",
+        "de_anubis",
+        "de_overpass",
+    ];
 
     private static string ResultKey(MenuOpenResult result)
     {

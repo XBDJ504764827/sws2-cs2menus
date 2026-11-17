@@ -13,6 +13,7 @@ internal sealed class MenuBuilder : IMenuBuilder
     private string _id = $"menu-{Guid.NewGuid():N}"[..13];
     private readonly string _title;
     private string? _comment;
+    private MenuLayout _layout;
     private int _pageSize;
     private string? _permission;
     private bool _showBack;
@@ -58,6 +59,12 @@ internal sealed class MenuBuilder : IMenuBuilder
     public IMenuBuilder PageSize(int pageSize)
     {
         _pageSize = Math.Clamp(pageSize, 1, MenuServiceConstants.DefaultPageSize);
+        return this;
+    }
+
+    public IMenuBuilder Layout(MenuLayout layout)
+    {
+        _layout = layout;
         return this;
     }
 
@@ -141,6 +148,7 @@ internal sealed class MenuBuilder : IMenuBuilder
             Id = _id,
             Title = _title,
             Comment = _comment,
+            Layout = _layout,
             PageSize = Math.Clamp(_pageSize, 1, MenuServiceConstants.DefaultPageSize),
             Permission = _permission,
             ShowBack = _showBack,
@@ -157,6 +165,7 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
     private string _id = $"option-{Guid.NewGuid():N}"[..15];
     private string _text = string.Empty;
     private string? _comment;
+    private string? _imageUrl;
     private string? _color;
     private string? _permission;
     private bool _hidden;
@@ -184,6 +193,15 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
     public IMenuOptionBuilder Comment(string? comment)
     {
         _comment = comment;
+        return this;
+    }
+
+    public IMenuOptionBuilder Image(string? imageUrl)
+    {
+        _imageUrl = Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri)
+            && uri.Scheme == Uri.UriSchemeHttps
+                ? uri.ToString()
+                : null;
         return this;
     }
 
@@ -236,6 +254,7 @@ internal sealed class MenuOptionBuilder : IMenuOptionBuilder
             Id = _id,
             Text = string.IsNullOrWhiteSpace(_text) ? _id : _text,
             Comment = _comment,
+            ImageUrl = _imageUrl,
             Color = _color,
             Permission = _permission,
             Hidden = _hidden,
