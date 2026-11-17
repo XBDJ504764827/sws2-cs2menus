@@ -12,6 +12,13 @@ public static class MenuServiceConstants
     public const string InterfaceKey = "sws2-cs2menus";
 
     /// <summary>
+    /// Optional shared <see cref="Func{TResult}"/> of bool reporting mounted Custom HUD readiness.
+    /// A separate, versioned key keeps old exported menu assemblies binary compatible.
+    /// Resolve alongside the menu service; a missing callback means HUD is unavailable.
+    /// </summary>
+    public const string CustomHudInterfaceKey = "sws2-cs2menus.custom-hud.v1";
+
+    /// <summary>
     /// Default number of options shown on one page.
     /// </summary>
     public const int DefaultPageSize = 5;

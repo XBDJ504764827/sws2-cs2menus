@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using SwiftlyS2.Shared.Players;
 using Sws2Cs2Menus.Configuration;
 using Sws2Cs2Menus.Contracts;
@@ -11,27 +12,40 @@ void Check(bool condition, string message)
 }
 
 var legacy = new LegacyBackend();
-Check(!((IMenuService)legacy).IsCustomHudAvailable, "Providers without the new capability default to unavailable");
+Check(typeof(IMenuService).Assembly.GetName().Version == new Version(1, 0, 0, 0), "Shared ABI version stays stable across plugin preview/release versions");
+Check(typeof(IMenuService).GetProperty("IsCustomHudAvailable") is null, "HUD capability must not extend the shared base menu interface");
 using var proxy = new MenuServiceProxy(legacy);
 Check(proxy.IsAvailable && !proxy.IsCustomHudAvailable && !proxy.UsesHud, "Classic fallback cannot satisfy a HUD-only consumer");
+var services = new ServiceCollection();
+services.AddKeyedSingleton<IMenuService>(MenuServiceConstants.InterfaceKey, proxy);
+using (var oldProvider = services.BuildServiceProvider())
+    Check(oldProvider.GetKeyedService<Func<bool>>(MenuServiceConstants.CustomHudInterfaceKey) is null, "Older providers have no optional HUD capability");
+services.AddKeyedSingleton<Func<bool>>(MenuServiceConstants.CustomHudInterfaceKey, () => proxy.IsCustomHudAvailable);
+using var provider = services.BuildServiceProvider();
+var sharedMenus = provider.GetRequiredKeyedService<IMenuService>(MenuServiceConstants.InterfaceKey);
+var hudReady = provider.GetRequiredKeyedService<Func<bool>>(MenuServiceConstants.CustomHudInterfaceKey);
+Check(sharedMenus.IsAvailable && !hudReady(), "Keyed BCL callback rejects classic rendering even with an older exported menu DLL");
 var hud = new HudBackend();
 proxy.ReplaceBackend(hud);
 Check(legacy.Closed && legacy.Disposed, "Backend switch closes old sessions before advertising HUD");
-Check(proxy.IsCustomHudAvailable && proxy.UsesHud, "Mounted HUD is advertised through the shared proxy");
+Check(proxy.IsCustomHudAvailable && proxy.UsesHud && hudReady(), "Mounted HUD is advertised through the proxy and callback");
 hud.Ready = false;
-Check(!proxy.IsCustomHudAvailable, "Lost/unmounted layout immediately withdraws capability");
+Check(!proxy.IsCustomHudAvailable && !hudReady(), "Lost/unmounted layout immediately withdraws capability");
 hud.Ready = true;
 hud.Available = false;
-Check(!proxy.IsCustomHudAvailable, "Stopped HUD cannot be used even if its resources remain mounted");
+Check(!proxy.IsCustomHudAvailable && !hudReady(), "Stopped HUD cannot be used even if its resources remain mounted");
 hud.Available = true;
 Check(proxy.IsCustomHudAvailable, "Readiness recovers without replacing the shared interface");
 var fallback = new LegacyBackend();
 proxy.ReplaceBackend(fallback);
-Check(hud.Closed && hud.Disposed && !proxy.IsCustomHudAvailable, "Switching back to classic closes HUD sessions and withdraws capability");
+Check(hud.Closed && hud.Disposed && !proxy.IsCustomHudAvailable && !hudReady(), "Switching back to classic closes HUD sessions and withdraws capability");
+proxy.ReplaceBackend(new HudBackend());
+Check(hudReady(), "Previously resolved callback follows subsequent backend replacements");
+proxy.Dispose();
+Check(!hudReady(), "Disposed backend withdraws readiness from existing consumers");
 Console.WriteLine($"{checks} HUD capability regression checks passed.");
 
-// Deliberately omits IsCustomHudAvailable: exercises the default interface
-// implementation used by older providers without loading a native game engine.
+// Classic backend uses the internal capability default without extending IMenuService.
 class LegacyBackend : IMenuBackend
 {
     public bool Available { get; set; } = true;
@@ -55,7 +69,7 @@ class LegacyBackend : IMenuBackend
     public void ClearSessions(MenuCloseReason reason) { }
     public void CleanupPlayer(int playerId, MenuCloseReason reason = MenuCloseReason.Disconnected) { }
     public void OnPlayerJoined(IPlayer player) { }
-    public void Dispose() => Disposed = true;
+    public void Dispose() { Disposed = true; Available = false; }
 }
 
 sealed class HudBackend : LegacyBackend, IMenuBackend

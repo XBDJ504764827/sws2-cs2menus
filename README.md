@@ -349,4 +349,20 @@ is only a fallback for local builds.
 
 ### Requiring the new CS2 HUD
 
-`IMenuService.IsCustomHudAvailable` reports whether the active renderer is ready and the compiled Panorama layout is mounted. Consumers that require the new HUD should check it before opening menus; `IsAvailable` alone also accepts the classic center HTML backend. Older providers return false by default. Backend switches close existing sessions. Armory requires this capability; deploy the matching updated menus package and contract DLL together.
+HUD readiness is published as an optional shared `Func<bool>` at the versioned key `sws2-cs2menus.custom-hud.v1` (`MenuServiceConstants.CustomHudInterfaceKey`). Resolve it alongside `IMenuService` during each `UseSharedInterface` call, and invoke it before opening a HUD-only menu. A missing callback means unavailable. `IsAvailable` alone also accepts classic rendering. The callback checks the current backend and mounted layout, and becomes false when menus unloads.
+
+```csharp
+private Func<bool>? _customHudAvailable;
+
+public override void UseSharedInterface(IInterfaceManager interfaces)
+{
+    _menus = interfaces.TryGetSharedInterface<IMenuService>(MenuServiceConstants.InterfaceKey, out var menus) ? menus : null;
+    _customHudAvailable = interfaces.TryGetSharedInterface<Func<bool>>(MenuServiceConstants.CustomHudInterfaceKey, out var ready) ? ready : null;
+}
+
+private bool CustomHudReady => _menus?.IsAvailable == true && _customHudAvailable?.Invoke() == true;
+```
+
+The base menu interface has no HUD readiness member. SwiftlyS2 may select an older same-name contract DLL from another installed plugin; adding a default interface member does not update that loaded assembly and caused `MissingMethodException` in preview 1.0.5-dev.35. Update **menus and armory together**, then fully restart the CS2 process to clear loaded assemblies. This HUD query change works with the previous base contract and does not require rebuilding the other consumers. Preserve each official package's exports.
+
+`python3 tools/check_hud_compatibility.py --plugin build/net10.0/sws2-cs2menus.dll` runs readiness checks normally and again after preloading a frozen legacy contract, then JIT-compiles the actual plugin methods against it without invoking CS2 native operations. It reproduces the missing-member failure on the old implementation. The fixture freezes `IMenuService` and constants from commit `3c0ec3b6aca0016d82f365f32acddeba338ae439`; other types are shared with the current source. These checks and ZIP validation run in CI and release builds.

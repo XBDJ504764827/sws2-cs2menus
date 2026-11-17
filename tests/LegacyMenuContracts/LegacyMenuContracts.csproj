@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Sws2Cs2Menus.Contracts</AssemblyName>
+    <Version>1.0.0</Version>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SwiftlyS2.CS2" Version="1.5.3" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="MySqlConnector" Version="2.6.2" ExcludeAssets="runtime" PrivateAssets="all" />
+    <Compile Include="../../contracts/*.cs" Exclude="../../contracts/IMenuService.cs;../../contracts/MenuServiceConstants.cs" />
+  </ItemGroup>
+</Project>

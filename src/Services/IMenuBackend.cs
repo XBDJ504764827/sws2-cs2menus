@@ -10,6 +10,10 @@ namespace Sws2Cs2Menus.Services;
 /// </summary>
 internal interface IMenuBackend : IMenuService, IDisposable
 {
+    // Keep renderer capabilities internal: older exported IMenuService assemblies
+    // may be selected by the host, regardless of the DLL beside this plugin.
+    bool IsCustomHudAvailable => false;
+
     void ApplyConfig(MenuConfig config);
 
     void Shutdown(MenuCloseReason reason);

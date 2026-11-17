@@ -80,9 +80,6 @@ jobs:
       - name: Run AddonChecks regression checks
         run: dotnet run --project tests/AddonChecks/AddonChecks.csproj -c Release
 
-      - name: Run HUD capability regression checks
-        run: dotnet run --project tests/HudChecks/HudChecks.csproj -c Release
-
       - name: Verify formatting and analyzers
         run: dotnet format sws2-cs2menus.sln --verify-no-changes --no-restore --severity warn
 
@@ -99,8 +96,14 @@ jobs:
           VERSION: ${{ needs.version.outputs.version }}
         run: dotnet build sws2-cs2menus.csproj -c Release --no-restore -warnaserror -p:Version="${VERSION}"
 
+      - name: Check HUD readiness with current and legacy exports
+        run: python3 tools/check_hud_compatibility.py --plugin build/net10.0/sws2-cs2menus.dll
+
       - name: Publish test package
         run: dotnet publish sws2-cs2menus.csproj -c Release --no-restore --no-build
+
+      - name: Validate installation package
+        run: python3 tools/check_package.py build/sws2-cs2menus.zip
 
       - name: Rename package
         id: package

@@ -7,6 +7,8 @@
     <AssemblyName>Sws2Cs2Menus.Contracts</AssemblyName>
     <RootNamespace>Sws2Cs2Menus.Contracts</RootNamespace>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <!-- Plugin preview/release versions must not change the shared ABI identity. -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 

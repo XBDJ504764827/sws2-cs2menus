@@ -121,6 +121,9 @@ public partial class Sws2Cs2Menus : BasePlugin
         interfaceManager.AddSharedInterface<IMenuService, MenuServiceProxy>(
             MenuServiceConstants.InterfaceKey,
             _menus);
+        interfaceManager.AddSharedInterface<Func<bool>, Func<bool>>(
+            MenuServiceConstants.CustomHudInterfaceKey,
+            () => _loaded && _menus.IsCustomHudAvailable);
     }
 
     private static IMenuBackend CreateBackend(ISwiftlyCore core, MenuConfig config)
