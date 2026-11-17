@@ -1,5 +1,52 @@
 # sws2cs2menus Workshop addon
 
+本目录是 menus 自定义 HUD 的 Panorama 资源源码。admin 管理面板、`!yd` 预定、无人预定 RTV 的选图投票共用这份布局、CSS 和地图截图；只更新插件 DLL 不会自动编译客户端 HUD。
+
+## 中文部署步骤
+
+1. 在 Steam 安装并启动 **Counter-Strike 2 Workshop Tools**，创建名为 `sws2cs2menus` 的 addon。
+2. 将本目录的 `panorama/` 复制到 `Counter-Strike 2/content/csgo_addons/sws2cs2menus/`，保持 XML、CSS 和图片的目录结构及面板 ID 不变。
+3. 在 Workshop Tools 编译布局、两个 CSS 文件与图片，发布为玩家可以下载的工坊资源，记录其真实数字 Workshop ID。
+4. 安装服务器 MultiAddonManager，在 `csgo/addons/swiftlys2/configs/plugins/sws2-cs2menus/config.jsonc` 的 `Menu` 中填入 `HudLayoutWorkshopId`，保持 `Backend: "auto"` 和 `AutoMountHudAddon: true`。ID 也可作为包内 `resources/hud-addon.json` 默认值，运行配置优先；仓库默认 ID 为空。
+5. menus 会将 HUD ID 合并到实时 `mm_extra_addons` 并触发 MAM 刷新，保留其他 addon。无需将地图目录中所有地图 ID 加到此列表；HUD addon 和地图是不同资源。
+6. 服务器控制台运行 `sw_hudstatus`，确认 `layoutReady=True`、`renderer=hudlayout`。客户端完成下载后重连，先验证 `!menudemo`，再验证 `!admin`、`!yd` 和无人预定的 RTV 投票。
+
+`auto` / `hudlayout` 在布局未就绪时先回退中心 HTML；`classic` 固定中心 HTML 并关闭自动 HUD 注册。ID 已在列表中不表示资源已下载或挂载。需要同时检查 MAM 日志、`mm_print_searchpaths`、VPK 内是否包含 `panorama/layout/custom_game/sws2cs2menus/menu.vxml_c`，以及客户端是否已获取更新。
+
+### 更新地图截图
+
+评分来自 mapmanager 配置，修改后重开菜单即可，不用重发工坊资源。截图是 addon 内的本地 CSS 背景；Steam 运行时作者/标题信息查询不会替换图片。进入 menus 仓库运行：
+
+```sh
+python3 tools/build_map_thumbnails.py --config /path/to/mapmanager/config.jsonc
+```
+
+离线时提供图片映射：
+
+```json
+{
+  "kz_angina": "screenshots/angina.jpg",
+  "workshop:3746453872": "screenshots/angina_x.png"
+}
+```
+
+```sh
+python3 tools/build_map_thumbnails.py --config /path/to/mapmanager/config.jsonc --images images.json --offline
+```
+
+相对图片路径以映射文件所在目录为基准；旧图有缓存，需要重新获取时先移除对应缓存。重新编译 XML、两个 CSS 文件和图片，更新同一个 Workshop addon；客户端重连，必要时重启客户端清理布局缓存。稳定地图 ID 不变时，仅改名称或评分不需要重做截图。
+
+### 验证组合功能
+
+- `!admin` 应显示玩家、地图、封禁、服务器管理中当前管理员有权限的分类；子页返回和切换分类不执行未确认的动作。
+- `!yd` 和无预定 RTV 选图应使用相同截图、四类评分与分页，但前者是预定，后者提交当前投票选票。
+- CKZ NUB/PRO、VNL NUB/PRO 分别独立，NUB 为存点、PRO 为裸跳；未知评分和缺图显示占位。
+- 每位玩家有独立面板，关闭后释放鼠标捕获；活跃 RTV 中未提交玩家可以用 `!rtv` 重开。
+- 浏览器预览只使用样例数据，不能替代实际客户端对中文字体、鼠标、分辨率和布局编译的验证。
+
+完整插件配置与搭配见 [menus 使用指南](../README.md)。下面保留英文资源结构、发布和排错参考。
+
+
 This folder contains the minimal Panorama layout used by the `custom_hud_layout`
 menu backend.
 
@@ -14,7 +61,7 @@ workshop/
 The layout provides a centered 980 × 660 window (1160 × 660 for maps with a sidebar) on CS2's 1080-high
 HUD canvas. A 214-pixel category column stays on the left while the right pane
 shows the active list, player action menu or confirmation. Navigation and paging
-stay at the bottom of the right pane. Player and ban pages are text-only. Both administrator Map management and `!yd` use the map picker layout with shared screenshots and independent CKZ NUB/PRO and VNL NUB/PRO ratings. No decorative icons are used.
+stay at the bottom of the right pane. Player and ban pages are text-only. Administrator Map management, `!yd` and unreserved RTV ballots use the map picker layout with shared screenshots and independent CKZ NUB/PRO and VNL NUB/PRO ratings. No decorative icons are used.
 
 The `!o` menu in cs2kz-metamod was used as an interaction reference; this addon
 has its own XML, CSS and server contract. Keep `sw_category0`–`sw_category4` and
@@ -85,13 +132,20 @@ access and CS2 client downloads are still required. Reconnect clients after an u
 In `game/csgo/addons/swiftlys2/configs/plugins/sws2-cs2menus/config.jsonc`:
 
 ```jsonc
-"Menu": {
-  "Backend": "auto",
-  "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
-  "HudLayoutWorkshopId": "1234567890", // replace with your published ID
-  "AutoMountHudAddon": true
+{
+  "sws2-cs2menus": {
+    "Menu": {
+      "Backend": "auto",
+      "HudLayoutPath": "panorama/layout/custom_game/sws2cs2menus/menu.vxml_c",
+      "HudLayoutWorkshopId": "1234567890",
+      "AutoMountHudAddon": true
+    }
+  }
 }
 ```
+
+Replace the example ID with your published HUD addon's ID and merge these fields
+into the existing configuration, preserving other settings.
 
 Both `auto` and `hudlayout` use center HTML while resources are absent, then switch
 to Custom HUD once the layout is mounted. `classic` keeps the center-HTML renderer
@@ -113,7 +167,7 @@ and mount your local compiled addon on both server and client as before.
 - `!menudemo` opens the HUD.
 - The centered panel appears with a short fade/slide animation.
 - `!admin` selects the first permitted category and displays its content on the right.
-- Player actions / Map management / Ban management remain visible on the left in all child pages.
+- Permitted Player actions / Map management / Ban management / Server management categories remain visible on the left in child pages.
 - Switching category from a confirmation page does not execute the pending action.
 - Kicks / bans show the target and duration before confirmation.
 - Back inside a category preserves the previous page; category roots have no Back action.
