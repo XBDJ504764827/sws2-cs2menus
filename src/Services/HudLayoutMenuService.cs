@@ -324,14 +324,21 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 _sessions[player.PlayerID] = session;
             }
 
+            var page = 0;
+            var animate = true;
             if (replaceCurrent && session!.Stack.Count > 0)
             {
-                var previous = session.Stack[^1].Menu;
+                var previous = session.Stack[^1];
+                if (previous.Menu.Id == menu.Id && previous.Menu.Layout == menu.Layout)
+                {
+                    page = previous.Page;
+                    animate = false;
+                }
                 session.Stack.RemoveAt(session.Stack.Count - 1);
-                InvokeClosed(previous, player, MenuCloseReason.Replaced);
-                RaiseMenuClosed(player, previous, MenuCloseReason.Replaced);
+                InvokeClosed(previous.Menu, player, MenuCloseReason.Replaced);
+                RaiseMenuClosed(player, previous.Menu, MenuCloseReason.Replaced);
             }
-            session!.Stack.Add(new MenuFrame { Menu = menu });
+            session!.Stack.Add(new MenuFrame { Menu = menu, Page = page });
 
             if (!EnsureEntityLocked(session))
             {
@@ -339,7 +346,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
                 return MenuOpenResult.Unavailable;
             }
 
-            RenderLocked(session);
+            RenderLocked(session, animate);
             RaiseMenuOpened(player, menu);
             if (session.Stack.Count == 1 && menu.Layout == MenuLayout.Sidebar)
             {
@@ -416,7 +423,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         }
     }
 
-    private void RenderLocked(PlayerSession session)
+    private void RenderLocked(PlayerSession session, bool animate = true)
     {
         if (!_available || session.Stack.Count == 0)
         {
@@ -559,7 +566,7 @@ internal sealed class HudLayoutMenuService : IMenuBackend
         SetClassLocked(session, "sw_home", "hidden", sidebar || session.Stack.Count <= 1 || !menu.ShowBack);
         SetClassLocked(session, "sw_close", "hidden", !menu.ShowClose);
         SetClassLocked(session, "sw_root", "hidden", false);
-        RestartMenuAnimationLocked(session);
+        if (animate) RestartMenuAnimationLocked(session);
 
         SetInputCaptureLocked(session, true);
     }
